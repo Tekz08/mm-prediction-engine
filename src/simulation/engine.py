@@ -30,6 +30,11 @@ def _run_chunk(args):
 
 
 class MonteCarloEngine:
+    @staticmethod
+    def _matchup_key(round_name: str, team_a: str, team_b: str) -> str:
+        a, b = sorted((team_a, team_b))
+        return f"{round_name}|{a}|{b}"
+
     def __init__(
         self,
         bracket_sim: BracketSimulator,
@@ -149,6 +154,7 @@ class MonteCarloEngine:
         bracket = copy.deepcopy(self.bracket_sim.bracket)
         teams = self.bracket_sim.teams_by_name
         first_four_results = {}
+        first_four_games = []
 
         for region, entries in bracket.items():
             for i, entry in enumerate(entries):
@@ -158,17 +164,29 @@ class MonteCarloEngine:
                     team_b = entry_to_team(opp_entry, teams)
                     winner, _, _ = self.simulate_game(team_a, team_b, "First Four")
                     first_four_results[f"{team_a.name} vs {team_b.name}"] = winner.name
+                    first_four_games.append({
+                        "team_a": team_a.name,
+                        "team_b": team_b.name,
+                        "winner": winner.name,
+                    })
                     bracket[region][i] = BracketEntry(
                         seed=entry.seed, team=winner.name, region=region,
                     )
 
-        return bracket, first_four_results
+        return bracket, first_four_results, first_four_games
 
     def simulate_tournament(self) -> dict:
-        bracket, first_four_results = self._resolve_bracket_copy()
+        bracket, first_four_results, first_four_games = self._resolve_bracket_copy()
         teams = self.bracket_sim.teams_by_name
         round_names = config.ROUNDS
-        results = {"rounds": {}, "champion": None, "first_four_results": first_four_results}
+        results = {
+            "rounds": {},
+            "games": {},
+            "champion": None,
+            "first_four_results": first_four_results,
+        }
+        if first_four_games:
+            results["games"]["First Four"] = first_four_games
         region_winners = {}
 
         for region, entries in bracket.items():
@@ -183,7 +201,15 @@ class MonteCarloEngine:
 
             while len(current_matchups) > 0:
                 rname = round_names[round_idx] if round_idx < len(round_names) else f"Round {round_idx}"
-                winners = self.simulate_round(current_matchups, rname)
+                winners = []
+                for team_a, team_b in current_matchups:
+                    winner, _, _ = self.simulate_game(team_a, team_b, rname)
+                    winners.append(winner)
+                    results["games"].setdefault(rname, []).append({
+                        "team_a": team_a.name,
+                        "team_b": team_b.name,
+                        "winner": winner.name,
+                    })
                 region_results[rname] = [w.name for w in winners]
 
                 if len(winners) == 1:
@@ -200,13 +226,26 @@ class MonteCarloEngine:
 
         ff_matchups = self.bracket_sim.get_final_four_matchups(region_winners)
         if len(ff_matchups) == 2:
-            ff_winners = self.simulate_round(ff_matchups, "Final Four")
+            ff_winners = []
+            for team_a, team_b in ff_matchups:
+                winner, _, _ = self.simulate_game(team_a, team_b, "Final Four")
+                ff_winners.append(winner)
+                results["games"].setdefault("Final Four", []).append({
+                    "team_a": team_a.name,
+                    "team_b": team_b.name,
+                    "winner": winner.name,
+                })
             results["final_four"] = [rw.name for rw in region_winners.values()]
             results["championship_matchup"] = [w.name for w in ff_winners]
 
             if len(ff_winners) == 2:
                 champion, _, _ = self.simulate_game(ff_winners[0], ff_winners[1], "Championship")
                 results["champion"] = champion.name
+                results["games"].setdefault("Championship", []).append({
+                    "team_a": ff_winners[0].name,
+                    "team_b": ff_winners[1].name,
+                    "winner": champion.name,
+                })
 
         return results
 
@@ -316,6 +355,8 @@ class MonteCarloEngine:
         final_four_appearances = defaultdict(int)
         final_four_combos = defaultdict(int)
         championship_matchups = defaultdict(int)
+        matchup_meet_counts = defaultdict(int)
+        matchup_win_counts = defaultdict(lambda: defaultdict(int))
 
         for i in range(self.iterations):
             result = self.simulate_tournament()
@@ -337,6 +378,18 @@ class MonteCarloEngine:
                 for round_name, winners in rounds.items():
                     for team in winners:
                         team_round_counts[team][round_name] += 1
+
+            if result.get("final_four"):
+                for team in result["final_four"]:
+                    team_round_counts[team]["Final Four"] += 1
+            if result.get("championship_matchup"):
+                for team in result["championship_matchup"]:
+                    team_round_counts[team]["Championship"] += 1
+            for round_name, games in result.get("games", {}).items():
+                for game in games:
+                    key = self._matchup_key(round_name, game["team_a"], game["team_b"])
+                    matchup_meet_counts[key] += 1
+                    matchup_win_counts[key][game["winner"]] += 1
 
         return {
             "iterations": self.iterations,
@@ -345,6 +398,8 @@ class MonteCarloEngine:
             "final_four_appearances": dict(final_four_appearances),
             "final_four_combos": dict(final_four_combos),
             "championship_matchups": dict(championship_matchups),
+            "matchup_meet_counts": dict(matchup_meet_counts),
+            "matchup_win_counts": {k: dict(v) for k, v in matchup_win_counts.items()},
         }
 
     def _run_single(self, progress_callback=None) -> dict:
@@ -353,6 +408,8 @@ class MonteCarloEngine:
         final_four_appearances = defaultdict(int)
         final_four_combos = defaultdict(int)
         championship_matchups = defaultdict(int)
+        matchup_meet_counts = defaultdict(int)
+        matchup_win_counts = defaultdict(lambda: defaultdict(int))
 
         for i in range(self.iterations):
             result = self.simulate_tournament()
@@ -374,6 +431,18 @@ class MonteCarloEngine:
                 for round_name, winners in rounds.items():
                     for team in winners:
                         team_round_counts[team][round_name] += 1
+
+            if result.get("final_four"):
+                for team in result["final_four"]:
+                    team_round_counts[team]["Final Four"] += 1
+            if result.get("championship_matchup"):
+                for team in result["championship_matchup"]:
+                    team_round_counts[team]["Championship"] += 1
+            for round_name, games in result.get("games", {}).items():
+                for game in games:
+                    key = self._matchup_key(round_name, game["team_a"], game["team_b"])
+                    matchup_meet_counts[key] += 1
+                    matchup_win_counts[key][game["winner"]] += 1
 
             if progress_callback and (i + 1) % max(1, self.iterations // 100) == 0:
                 progress_callback(i + 1, self.iterations)
@@ -389,6 +458,8 @@ class MonteCarloEngine:
             "championship_matchups": {
                 str(k): v for k, v in sorted(championship_matchups.items(), key=lambda x: -x[1])[:10]
             },
+            "matchup_meet_counts": dict(matchup_meet_counts),
+            "matchup_win_counts": {k: dict(v) for k, v in matchup_win_counts.items()},
         }
 
     def _run_parallel(self, workers, progress_callback=None) -> dict:
@@ -428,6 +499,8 @@ class MonteCarloEngine:
         final_four_appearances = defaultdict(int)
         final_four_combos = defaultdict(int)
         championship_matchups = defaultdict(int)
+        matchup_meet_counts = defaultdict(int)
+        matchup_win_counts = defaultdict(lambda: defaultdict(int))
 
         for r in partial_results:
             for team, wins in r["championship_wins"].items():
@@ -441,6 +514,11 @@ class MonteCarloEngine:
                 final_four_combos[key] += count
             for key, count in r["championship_matchups"].items():
                 championship_matchups[key] += count
+            for key, count in r.get("matchup_meet_counts", {}).items():
+                matchup_meet_counts[key] += count
+            for key, wins in r.get("matchup_win_counts", {}).items():
+                for team, count in wins.items():
+                    matchup_win_counts[key][team] += count
 
         total_iterations = sum(r["iterations"] for r in partial_results)
 
@@ -455,4 +533,6 @@ class MonteCarloEngine:
             "championship_matchups": {
                 str(k): v for k, v in sorted(championship_matchups.items(), key=lambda x: -x[1])[:10]
             },
+            "matchup_meet_counts": dict(matchup_meet_counts),
+            "matchup_win_counts": {k: dict(v) for k, v in matchup_win_counts.items()},
         }

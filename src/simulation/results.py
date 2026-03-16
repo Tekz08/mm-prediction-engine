@@ -11,6 +11,27 @@ class SimulationResults:
         self.final_four_appearances = raw.get("final_four_appearances", {})
         self.final_four_combos = raw.get("final_four_combos", {})
         self.championship_matchups = raw.get("championship_matchups", {})
+        self.matchup_meet_counts = raw.get("matchup_meet_counts", {})
+        self.matchup_win_counts = raw.get("matchup_win_counts", {})
+
+    @staticmethod
+    def _matchup_key(round_name: str, team_a: str, team_b: str) -> str:
+        a, b = sorted((team_a, team_b))
+        return f"{round_name}|{a}|{b}"
+
+    def matchup_win_rate(
+        self,
+        round_name: str,
+        team_a: str,
+        team_b: str,
+        winner: str,
+    ) -> tuple[float | None, int]:
+        key = self._matchup_key(round_name, team_a, team_b)
+        meet_count = int(self.matchup_meet_counts.get(key, 0))
+        if meet_count <= 0:
+            return None, 0
+        win_count = int(self.matchup_win_counts.get(key, {}).get(winner, 0))
+        return win_count / meet_count * 100.0, meet_count
 
     def team_advancement_probabilities(self, team: str) -> dict[str, float]:
         counts = self.team_round_counts.get(team, {})

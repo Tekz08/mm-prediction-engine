@@ -22,10 +22,14 @@ class GamePick:
     reasoning: str
     is_upset: bool
     win_rate: float
+    sample_size: int = 0
+    rate_source: str = "model"
     matchup_details: dict = field(default_factory=dict)
 
 
 class BracketAdvisor:
+    MIN_MATCHUP_SAMPLE = 25
+
     def __init__(
         self,
         evaluator: MatchupEvaluator,
@@ -37,7 +41,6 @@ class BracketAdvisor:
         self.sim_results = sim_results
         self.teams_by_name = teams_by_name
         self.profiles = profiles
-        self.adv_probs = sim_results.all_advancement_probabilities()
 
     def _confidence_label(self, win_rate: float) -> str:
         if win_rate >= 85:
@@ -76,6 +79,19 @@ class BracketAdvisor:
 
         return "; ".join(parts[:3])
 
+    def _effective_rate(
+        self,
+        round_name: str,
+        team_a: str,
+        team_b: str,
+        winner: str,
+        fallback: float,
+    ) -> tuple[float, int, str]:
+        sim_rate, sample_size = self.sim_results.matchup_win_rate(round_name, team_a, team_b, winner)
+        if sim_rate is not None and sample_size >= self.MIN_MATCHUP_SAMPLE and sim_rate >= 50.0:
+            return sim_rate, sample_size, "sim"
+        return fallback, sample_size, "model"
+
     def generate_bracket(self, consensus: dict) -> list[GamePick]:
         picks = []
 
@@ -94,8 +110,9 @@ class BracketAdvisor:
             prob = ff_game["prob"]
             is_upset = pick_team.seed > loser_team.seed
 
-            sim_rate = self._get_sim_win_rate(ta_name, tb_name, "Round of 64")
-            effective_rate = (prob + sim_rate) / 2 if sim_rate > 0 else prob
+            effective_rate, sample_size, rate_source = self._effective_rate(
+                "First Four", ta_name, tb_name, winner_name, prob
+            )
 
             picks.append(GamePick(
                 round_name="First Four",
@@ -110,6 +127,8 @@ class BracketAdvisor:
                 reasoning=self._build_reasoning(ta, tb, pick_team, breakdown),
                 is_upset=is_upset,
                 win_rate=round(effective_rate, 1),
+                sample_size=sample_size,
+                rate_source=rate_source,
                 matchup_details=breakdown,
             ))
 
@@ -131,8 +150,9 @@ class BracketAdvisor:
                     prob = game["prob"]
                     is_upset = pick_team.seed > loser_team.seed
 
-                    sim_rate = self._get_sim_win_rate(ta_name, tb_name, rname)
-                    effective_rate = (prob + sim_rate) / 2 if sim_rate > 0 else prob
+                    effective_rate, sample_size, rate_source = self._effective_rate(
+                        rname, ta_name, tb_name, winner_name, prob
+                    )
 
                     picks.append(GamePick(
                         round_name=rname,
@@ -147,6 +167,8 @@ class BracketAdvisor:
                         reasoning=self._build_reasoning(ta, tb, pick_team, breakdown),
                         is_upset=is_upset,
                         win_rate=round(effective_rate, 1),
+                        sample_size=sample_size,
+                        rate_source=rate_source,
                         matchup_details=breakdown,
                     ))
 
@@ -165,8 +187,9 @@ class BracketAdvisor:
             prob = ff_game["prob"]
             is_upset = pick_team.seed > loser_team.seed
 
-            sim_rate = self._get_sim_win_rate(ta_name, tb_name, "Final Four")
-            effective_rate = (prob + sim_rate) / 2 if sim_rate > 0 else prob
+            effective_rate, sample_size, rate_source = self._effective_rate(
+                "Final Four", ta_name, tb_name, winner_name, prob
+            )
 
             picks.append(GamePick(
                 round_name="Final Four",
@@ -181,6 +204,8 @@ class BracketAdvisor:
                 reasoning=self._build_reasoning(ta, tb, pick_team, breakdown),
                 is_upset=is_upset,
                 win_rate=round(effective_rate, 1),
+                sample_size=sample_size,
+                rate_source=rate_source,
                 matchup_details=breakdown,
             ))
 
@@ -198,9 +223,9 @@ class BracketAdvisor:
                 prob = champ["prob"]
                 is_upset = pick_team.seed > loser_team.seed
 
-                champ_probs = self.sim_results.championship_probabilities()
-                pick_champ_rate = champ_probs.get(winner_name, prob)
-                effective_rate = (prob + pick_champ_rate) / 2
+                effective_rate, sample_size, rate_source = self._effective_rate(
+                    "Championship", ta_name, tb_name, winner_name, prob
+                )
 
                 picks.append(GamePick(
                     round_name="Championship",
@@ -215,18 +240,12 @@ class BracketAdvisor:
                     reasoning=self._build_reasoning(ta, tb, pick_team, breakdown),
                     is_upset=is_upset,
                     win_rate=round(effective_rate, 1),
+                    sample_size=sample_size,
+                    rate_source=rate_source,
                     matchup_details=breakdown,
                 ))
 
         return picks
-
-    def _get_sim_win_rate(self, team_a: str, team_b: str, round_name: str) -> float:
-        a_adv = self.adv_probs.get(team_a, {}).get(round_name, 0)
-        b_adv = self.adv_probs.get(team_b, {}).get(round_name, 0)
-        total = a_adv + b_adv
-        if total == 0:
-            return 0.0
-        return a_adv / total * 100
 
     def get_smart_upsets(self, picks: list[GamePick], max_upsets: int = 5) -> list[GamePick]:
         upsets = [p for p in picks if p.is_upset]
@@ -266,6 +285,8 @@ class BracketAdvisor:
                 "reasoning": p.reasoning,
                 "is_upset": p.is_upset,
                 "win_rate": p.win_rate,
+                "sample_size": p.sample_size,
+                "rate_source": p.rate_source,
             })
 
         return {
@@ -275,6 +296,7 @@ class BracketAdvisor:
                 "confidence": champ.confidence if champ else "",
                 "reasoning": champ.reasoning if champ else "",
             },
+            "iterations": self.sim_results.iterations,
             "final_four": ff,
             "smart_upsets": [
                 {

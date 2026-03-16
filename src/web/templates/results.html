@@ -299,7 +299,8 @@ function runSimulation() {
     };
 }
 
-function renderResults(data) {
+function renderResults(data, save=true) {
+    if (save) localStorage.setItem('lastSimulation', JSON.stringify(data));
     const container = document.getElementById('results-container');
     container.classList.remove('hidden');
 
@@ -372,5 +373,12 @@ function renderResults(data) {
             </div>`;
     });
 }
+
+(function() {
+    const cached = localStorage.getItem('lastSimulation');
+    if (cached) {
+        try { renderResults(JSON.parse(cached), false); } catch(e) {}
+    }
+})();
 </script>
 {% endblock %}
