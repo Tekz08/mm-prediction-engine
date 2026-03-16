@@ -231,6 +231,13 @@
                 {% set sa = team_a.stats %}
                 {% set sb = team_b.stats %}
                 {% set metrics = [
+                    ("BPI", sa.bpi, sb.bpi, true, true),
+                    ("BPI Rank", sa.bpi_rank, sb.bpi_rank, true, false),
+                    ("BPI Offense", sa.bpi_offensive, sb.bpi_offensive, true, true),
+                    ("BPI Defense", sa.bpi_defensive, sb.bpi_defensive, true, true),
+                    ("SOR Rank", sa.sor_rank, sb.sor_rank, true, false),
+                    ("vs Top 50 (BPI)", sa.quality_wins|string + "-" + sa.quality_losses|string, sb.quality_wins|string + "-" + sb.quality_losses|string, false, false),
+                    ("ESPN SOS Rank", sa.espn_sos_rank, sb.espn_sos_rank, true, false),
                     ("Adj. Off. Efficiency", sa.adj_offensive_efficiency, sb.adj_offensive_efficiency, true, true),
                     ("Adj. Def. Efficiency", sa.adj_defensive_efficiency, sb.adj_defensive_efficiency, true, false),
                     ("Net Efficiency", sa.net_efficiency, sb.net_efficiency, true, true),

@@ -212,6 +212,28 @@ def test_momentum_matters():
     assert prob_hot > prob_cold, f"Hot team should be favored over cold team ({prob_hot} vs {prob_cold})"
 
 
+def test_sos_adjusts_efficiency():
+    power = _make_team("Power", 5, off_eff=115, def_eff=100, strength_of_schedule=13.0)
+    midmaj = _make_team("MidMaj", 12, off_eff=120, def_eff=97, strength_of_schedule=-8.0)
+    teams = [power, midmaj]
+    historical = HistoricalAnalyzer()
+    profiles = _make_profiles(teams)
+    evaluator = MatchupEvaluator(historical, profiles)
+
+    assert midmaj.stats.net_efficiency > power.stats.net_efficiency, "MidMaj raw NET should be higher"
+    assert power.stats.sos_adjusted_net > midmaj.stats.sos_adjusted_net, "Power SOS-adjusted NET should be higher"
+
+    prob = evaluator.win_probability(power, midmaj)
+    assert prob > 0.5, f"Power-conf team should be favored after SOS adjustment, got {prob}"
+
+
+def test_sos_no_effect_at_zero():
+    team_a = _make_team("TeamA", 5, off_eff=115, def_eff=100, strength_of_schedule=0.0)
+    assert team_a.stats.sos_adjusted_oe == team_a.stats.adj_offensive_efficiency
+    assert team_a.stats.sos_adjusted_de == team_a.stats.adj_defensive_efficiency
+    assert team_a.stats.sos_adjusted_net == team_a.stats.net_efficiency
+
+
 if __name__ == "__main__":
     test_higher_seed_favored()
     test_equal_seeds_near_fifty()
@@ -224,4 +246,6 @@ if __name__ == "__main__":
     test_head_to_head_boosts_probability()
     test_common_opponents_factor()
     test_momentum_matters()
+    test_sos_adjusts_efficiency()
+    test_sos_no_effect_at_zero()
     print("All matchup tests passed!")

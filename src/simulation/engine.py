@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import os
 import random
 from collections import defaultdict
+from multiprocessing import Pool
 
 import numpy as np
 
@@ -11,6 +13,20 @@ from src.analysis.matchup import MatchupEvaluator
 from src.analysis.profiler import compute_roster_metrics
 from src.data.models import BracketEntry, Team
 from src.simulation.bracket import BracketSimulator, build_region_matchups, entry_to_team
+
+_worker_data = None
+
+
+def _init_worker(bracket_sim, evaluator):
+    global _worker_data
+    _worker_data = (bracket_sim, evaluator)
+
+
+def _run_chunk(args):
+    iterations, seed = args
+    bracket_sim, evaluator = _worker_data
+    engine = MonteCarloEngine(bracket_sim, evaluator, iterations=iterations, seed=seed)
+    return engine._run_batch()
 
 
 class MonteCarloEngine:
@@ -24,6 +40,7 @@ class MonteCarloEngine:
         self.bracket_sim = bracket_sim
         self.evaluator = evaluator
         self.iterations = iterations or config.DEFAULT_ITERATIONS
+        self.seed = seed
         self.rng = random.Random(seed)
         self.np_rng = np.random.RandomState(seed)
         self._roster_cache: dict[str, dict] = {}
@@ -82,10 +99,10 @@ class MonteCarloEngine:
             possessions = 68.0
 
         league_avg = config.LEAGUE_AVG_EFFICIENCY
-        off_a = sa.adj_offensive_efficiency if sa.adj_offensive_efficiency > 0 else league_avg
-        def_a = sa.adj_defensive_efficiency if sa.adj_defensive_efficiency > 0 else league_avg
-        off_b = sb.adj_offensive_efficiency if sb.adj_offensive_efficiency > 0 else league_avg
-        def_b = sb.adj_defensive_efficiency if sb.adj_defensive_efficiency > 0 else league_avg
+        off_a = sa.sos_adjusted_oe if sa.adj_offensive_efficiency > 0 else league_avg
+        def_a = sa.sos_adjusted_de if sa.adj_defensive_efficiency > 0 else league_avg
+        off_b = sb.sos_adjusted_oe if sb.adj_offensive_efficiency > 0 else league_avg
+        def_b = sb.sos_adjusted_de if sb.adj_defensive_efficiency > 0 else league_avg
 
         expected_a = possessions * off_a * (def_b / league_avg) / 100.0
         expected_b = possessions * off_b * (def_a / league_avg) / 100.0
@@ -284,7 +301,53 @@ class MonteCarloEngine:
 
         return result
 
-    def run(self, progress_callback=None) -> dict:
+    def run(self, progress_callback=None, workers=None) -> dict:
+        if workers is None:
+            workers = os.cpu_count() or 1
+
+        if workers <= 1 or self.iterations < 100:
+            return self._run_single(progress_callback)
+
+        return self._run_parallel(workers, progress_callback)
+
+    def _run_batch(self) -> dict:
+        team_round_counts = defaultdict(lambda: defaultdict(int))
+        championship_wins = defaultdict(int)
+        final_four_appearances = defaultdict(int)
+        final_four_combos = defaultdict(int)
+        championship_matchups = defaultdict(int)
+
+        for i in range(self.iterations):
+            result = self.simulate_tournament()
+
+            if result.get("champion"):
+                championship_wins[result["champion"]] += 1
+
+            if result.get("final_four"):
+                for team in result["final_four"]:
+                    final_four_appearances[team] += 1
+                combo_key = tuple(sorted(result["final_four"]))
+                final_four_combos[combo_key] += 1
+
+            if result.get("championship_matchup"):
+                cm_key = tuple(sorted(result["championship_matchup"]))
+                championship_matchups[cm_key] += 1
+
+            for region, rounds in result.get("rounds", {}).items():
+                for round_name, winners in rounds.items():
+                    for team in winners:
+                        team_round_counts[team][round_name] += 1
+
+        return {
+            "iterations": self.iterations,
+            "team_round_counts": {t: dict(r) for t, r in team_round_counts.items()},
+            "championship_wins": dict(championship_wins),
+            "final_four_appearances": dict(final_four_appearances),
+            "final_four_combos": dict(final_four_combos),
+            "championship_matchups": dict(championship_matchups),
+        }
+
+    def _run_single(self, progress_callback=None) -> dict:
         team_round_counts = defaultdict(lambda: defaultdict(int))
         championship_wins = defaultdict(int)
         final_four_appearances = defaultdict(int)
@@ -318,6 +381,72 @@ class MonteCarloEngine:
         return {
             "iterations": self.iterations,
             "team_round_counts": dict(team_round_counts),
+            "championship_wins": dict(championship_wins),
+            "final_four_appearances": dict(final_four_appearances),
+            "final_four_combos": {
+                str(k): v for k, v in sorted(final_four_combos.items(), key=lambda x: -x[1])[:10]
+            },
+            "championship_matchups": {
+                str(k): v for k, v in sorted(championship_matchups.items(), key=lambda x: -x[1])[:10]
+            },
+        }
+
+    def _run_parallel(self, workers, progress_callback=None) -> dict:
+        num_chunks = min(workers * 8, self.iterations)
+        base_size = self.iterations // num_chunks
+        remainder = self.iterations % num_chunks
+
+        rng = np.random.RandomState(self.seed)
+        chunk_seeds = [int(rng.randint(0, 2**31)) for _ in range(num_chunks)]
+
+        chunk_args = []
+        for i in range(num_chunks):
+            n = base_size + (1 if i < remainder else 0)
+            if n > 0:
+                chunk_args.append((n, chunk_seeds[i]))
+
+        partial_results = []
+        completed_iters = 0
+
+        with Pool(
+            processes=workers,
+            initializer=_init_worker,
+            initargs=(self.bracket_sim, self.evaluator),
+        ) as pool:
+            for result in pool.imap_unordered(_run_chunk, chunk_args):
+                partial_results.append(result)
+                completed_iters += result["iterations"]
+                if progress_callback:
+                    progress_callback(completed_iters, self.iterations)
+
+        return self._merge_results(partial_results)
+
+    @staticmethod
+    def _merge_results(partial_results: list[dict]) -> dict:
+        team_round_counts = defaultdict(lambda: defaultdict(int))
+        championship_wins = defaultdict(int)
+        final_four_appearances = defaultdict(int)
+        final_four_combos = defaultdict(int)
+        championship_matchups = defaultdict(int)
+
+        for r in partial_results:
+            for team, wins in r["championship_wins"].items():
+                championship_wins[team] += wins
+            for team, count in r["final_four_appearances"].items():
+                final_four_appearances[team] += count
+            for team, rounds in r["team_round_counts"].items():
+                for rnd, count in rounds.items():
+                    team_round_counts[team][rnd] += count
+            for key, count in r["final_four_combos"].items():
+                final_four_combos[key] += count
+            for key, count in r["championship_matchups"].items():
+                championship_matchups[key] += count
+
+        total_iterations = sum(r["iterations"] for r in partial_results)
+
+        return {
+            "iterations": total_iterations,
+            "team_round_counts": {t: dict(r) for t, r in team_round_counts.items()},
             "championship_wins": dict(championship_wins),
             "final_four_appearances": dict(final_four_appearances),
             "final_four_combos": {

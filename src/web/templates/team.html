@@ -109,6 +109,46 @@
     </div>
 </div>
 
+{% if team.stats.bpi %}
+<div class="glass rounded-xl p-5 mb-6">
+    <h3 class="text-lg font-bold mb-4">ESPN BPI Power Index</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">BPI</div>
+            <div class="text-xl font-bold mt-1 text-ncaa-orange">{{ "%.1f"|format(team.stats.bpi) }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">BPI Rank</div>
+            <div class="text-xl font-bold mt-1">#{{ team.stats.bpi_rank }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">BPI Offense</div>
+            <div class="text-xl font-bold mt-1 text-blue-400">{{ "%.1f"|format(team.stats.bpi_offensive) }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">BPI Defense</div>
+            <div class="text-xl font-bold mt-1 text-red-400">{{ "%.1f"|format(team.stats.bpi_defensive) }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">SOR Rank</div>
+            <div class="text-xl font-bold mt-1">#{{ team.stats.sor_rank }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">vs Top 50 (BPI)</div>
+            <div class="text-xl font-bold mt-1">{{ team.stats.quality_wins }}-{{ team.stats.quality_losses }}</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">Quality Win %</div>
+            <div class="text-xl font-bold mt-1">{{ "%.0f"|format(team.stats.quality_win_ratio * 100) }}%</div>
+        </div>
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">ESPN SOS Rank</div>
+            <div class="text-xl font-bold mt-1">#{{ team.stats.espn_sos_rank }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="glass rounded-xl p-5">
     <h3 class="text-lg font-bold mb-4">Key Metrics</h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

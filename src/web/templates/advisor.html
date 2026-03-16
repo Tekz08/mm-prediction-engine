@@ -216,7 +216,45 @@
                 class="bg-ncaa-orange hover:bg-orange-600 text-white font-bold px-6 py-2 rounded transition">
             Generate Bracket
         </button>
+        <button onclick="toggleWeights()" class="text-sm text-gray-400 hover:text-white transition px-3 py-2 border border-gray-700 rounded">
+            Tune Weights
+        </button>
     </div>
+
+    <div id="weightPanel" class="hidden mt-4 border-t border-gray-700 pt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span>Historical</span><span id="wHistVal" class="text-white font-mono">15</span>
+                </label>
+                <input type="range" id="wHist" min="0" max="100" step="5" value="15" oninput="updateWeights()" class="w-full accent-orange-500">
+            </div>
+            <div>
+                <label class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span>Efficiency</span><span id="wEffVal" class="text-white font-mono">45</span>
+                </label>
+                <input type="range" id="wEff" min="0" max="100" step="5" value="45" oninput="updateWeights()" class="w-full accent-orange-500">
+            </div>
+            <div>
+                <label class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span>Profile</span><span id="wProfVal" class="text-white font-mono">20</span>
+                </label>
+                <input type="range" id="wProf" min="0" max="100" step="5" value="20" oninput="updateWeights()" class="w-full accent-orange-500">
+            </div>
+            <div>
+                <label class="flex justify-between text-sm text-gray-400 mb-1">
+                    <span>Matchup</span><span id="wMatchVal" class="text-white font-mono">20</span>
+                </label>
+                <input type="range" id="wMatch" min="0" max="100" step="5" value="20" oninput="updateWeights()" class="w-full accent-orange-500">
+            </div>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+            <span class="text-sm text-gray-400">Total: <span id="wTotal" class="font-mono text-white">100</span></span>
+            <span id="wWarn" class="text-sm text-red-400 hidden">Weights must sum to 100</span>
+            <button onclick="resetWeights()" class="text-xs text-gray-500 hover:text-gray-300 ml-auto">Reset to defaults</button>
+        </div>
+    </div>
+
     <div id="progressContainer" class="mt-4 hidden">
         <div class="w-full bg-gray-700 rounded-full h-3">
             <div id="progressBar" class="bg-ncaa-orange h-3 rounded-full transition-all" style="width: 0%"></div>
@@ -247,6 +285,31 @@ const ROUND_NAMES = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8'];
 function confClass(c) { return {'Lock':'conf-lock','Strong':'conf-strong','Lean':'conf-lean','Toss-up':'conf-tossup'}[c]||''; }
 function badgeClass(c) { return {'Lock':'badge-lock','Strong':'badge-strong','Lean':'badge-lean','Toss-up':'badge-tossup'}[c]||''; }
 
+function toggleWeights() { document.getElementById('weightPanel').classList.toggle('hidden'); }
+
+function updateWeights() {
+    const h = parseInt(document.getElementById('wHist').value);
+    const e = parseInt(document.getElementById('wEff').value);
+    const p = parseInt(document.getElementById('wProf').value);
+    const m = parseInt(document.getElementById('wMatch').value);
+    document.getElementById('wHistVal').textContent = h;
+    document.getElementById('wEffVal').textContent = e;
+    document.getElementById('wProfVal').textContent = p;
+    document.getElementById('wMatchVal').textContent = m;
+    const total = h + e + p + m;
+    document.getElementById('wTotal').textContent = total;
+    document.getElementById('wWarn').classList.toggle('hidden', total === 100);
+    document.getElementById('runBtn').disabled = total !== 100;
+}
+
+function resetWeights() {
+    document.getElementById('wHist').value = 15;
+    document.getElementById('wEff').value = 45;
+    document.getElementById('wProf').value = 20;
+    document.getElementById('wMatch').value = 20;
+    updateWeights();
+}
+
 function switchView(v) {
     document.getElementById('bracketView').classList.toggle('hidden', v!=='bracket');
     document.getElementById('tableView').classList.toggle('hidden', v!=='table');
@@ -256,6 +319,10 @@ function switchView(v) {
 
 function runAdvisor() {
     const iterations = document.getElementById('iterations').value;
+    const wHist = document.getElementById('wHist').value;
+    const wEff = document.getElementById('wEff').value;
+    const wProf = document.getElementById('wProf').value;
+    const wMatch = document.getElementById('wMatch').value;
     const btn = document.getElementById('runBtn');
     const prog = document.getElementById('progressContainer');
     const bar = document.getElementById('progressBar');
@@ -264,7 +331,7 @@ function runAdvisor() {
     prog.classList.remove('hidden'); bar.style.width = '0%';
     document.getElementById('results').classList.add('hidden');
 
-    const es = new EventSource(`/api/advisor-stream?iterations=${iterations}`);
+    const es = new EventSource(`/api/advisor-stream?iterations=${iterations}&w_hist=${wHist}&w_eff=${wEff}&w_prof=${wProf}&w_match=${wMatch}`);
     es.onmessage = function(e) {
         const msg = JSON.parse(e.data);
         if (msg.type === 'progress') {

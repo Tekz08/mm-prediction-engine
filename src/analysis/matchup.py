@@ -83,8 +83,13 @@ class MatchupEvaluator:
         return self.historical.seed_matchup_win_rate(team_a.seed, team_b.seed)
 
     def _efficiency_component(self, team_a: Team, team_b: Team) -> float:
-        diff = team_a.stats.net_efficiency - team_b.stats.net_efficiency
-        return float(expit(diff / config.LOGISTIC_SCALE))
+        sr_diff = team_a.stats.sos_adjusted_net - team_b.stats.sos_adjusted_net
+        if team_a.stats.bpi != 0 and team_b.stats.bpi != 0:
+            bpi_diff = team_a.stats.bpi - team_b.stats.bpi
+            blended_diff = sr_diff * 0.6 + bpi_diff * 0.4
+        else:
+            blended_diff = sr_diff
+        return float(expit(blended_diff / config.LOGISTIC_SCALE))
 
     def _profile_component(self, team_a: Team, team_b: Team) -> float:
         prof_a = self.profiles.get(team_a.name)
@@ -241,8 +246,20 @@ class MatchupEvaluator:
                 },
                 "efficiency": {
                     "weight": self.w_eff,
-                    "team_a_net_eff": team_a.stats.net_efficiency,
-                    "team_b_net_eff": team_b.stats.net_efficiency,
+                    "team_a_net_eff": round(team_a.stats.sos_adjusted_net, 1),
+                    "team_b_net_eff": round(team_b.stats.sos_adjusted_net, 1),
+                    "team_a_raw_net": round(team_a.stats.net_efficiency, 1),
+                    "team_b_raw_net": round(team_b.stats.net_efficiency, 1),
+                    "team_a_sos": team_a.stats.strength_of_schedule,
+                    "team_b_sos": team_b.stats.strength_of_schedule,
+                    "team_a_bpi": team_a.stats.bpi,
+                    "team_b_bpi": team_b.stats.bpi,
+                    "team_a_bpi_rank": team_a.stats.bpi_rank,
+                    "team_b_bpi_rank": team_b.stats.bpi_rank,
+                    "team_a_sor_rank": team_a.stats.sor_rank,
+                    "team_b_sor_rank": team_b.stats.sor_rank,
+                    "team_a_quality_record": f"{team_a.stats.quality_wins}-{team_a.stats.quality_losses}",
+                    "team_b_quality_record": f"{team_b.stats.quality_wins}-{team_b.stats.quality_losses}",
                     "team_a_prob": result.efficiency_component,
                 },
                 "profile": {

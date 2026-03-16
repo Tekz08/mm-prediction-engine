@@ -1,6 +1,8 @@
 from __future__ import annotations
 from pydantic import BaseModel, Field
 
+import config
+
 
 class TeamStats(BaseModel):
     adj_offensive_efficiency: float = 0.0
@@ -21,10 +23,39 @@ class TeamStats(BaseModel):
     last10_wins: int = 0
     last10_losses: int = 0
     tournament_experience: float = 0.0
+    bpi: float = 0.0
+    bpi_offensive: float = 0.0
+    bpi_defensive: float = 0.0
+    bpi_rank: int = 0
+    sor_rank: int = 0
+    quality_wins: int = 0
+    quality_losses: int = 0
+    espn_sos_rank: int = 0
 
     @property
     def net_efficiency(self) -> float:
         return self.adj_offensive_efficiency - self.adj_defensive_efficiency
+
+    @property
+    def sos_adjusted_oe(self) -> float:
+        adj = self.strength_of_schedule * config.SOS_ADJUSTMENT_FACTOR / 2
+        return self.adj_offensive_efficiency + adj
+
+    @property
+    def sos_adjusted_de(self) -> float:
+        adj = self.strength_of_schedule * config.SOS_ADJUSTMENT_FACTOR / 2
+        return self.adj_defensive_efficiency - adj
+
+    @property
+    def sos_adjusted_net(self) -> float:
+        return self.sos_adjusted_oe - self.sos_adjusted_de
+
+    @property
+    def quality_win_ratio(self) -> float:
+        total = self.quality_wins + self.quality_losses
+        if total == 0:
+            return 0.0
+        return self.quality_wins / total
 
 
 class PlayerStats(BaseModel):

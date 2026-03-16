@@ -91,6 +91,13 @@ def _compute_intangible(team: Team, all_teams: list[Team]) -> float:
         if coach_win_pcts:
             factors.append(_normalize(c.career_win_pct, min(coach_win_pcts), max(coach_win_pcts)))
 
+    sor_ranks = [t.stats.sor_rank for t in all_teams if t.stats.sor_rank > 0]
+    if s.sor_rank > 0 and sor_ranks:
+        factors.append(_normalize(max(sor_ranks) - s.sor_rank, 0, max(sor_ranks) - min(sor_ranks)))
+
+    if s.quality_wins + s.quality_losses > 0:
+        factors.append(s.quality_win_ratio * 100)
+
     roster = compute_roster_metrics(team)
     if roster["top_scorer_share"] > 0:
         balance_score = (1.0 - roster["top_scorer_share"]) * 100
@@ -155,6 +162,15 @@ def _identify_strengths(team: Team, all_teams: list[Team]) -> list[str]:
     if c.championships >= 1:
         strengths.append("Coach is a national champion")
 
+    if s.bpi_rank > 0 and s.bpi_rank <= 10:
+        strengths.append("Top-10 BPI power rating")
+
+    if s.sor_rank > 0 and s.sor_rank <= 10:
+        strengths.append("Elite strength of record")
+
+    if s.quality_wins >= 12:
+        strengths.append("Battle-tested vs top-50 opponents")
+
     roster = compute_roster_metrics(team)
     if roster["deep_rotation_count"] >= 8:
         strengths.append("Deep bench")
@@ -196,6 +212,9 @@ def _identify_weaknesses(team: Team, all_teams: list[Team]) -> list[str]:
         weaknesses.append("Coach has zero tournament experience")
     elif c.name and c.years_coaching >= 5 and c.tourney_appearances <= 1:
         weaknesses.append("Coach has minimal tournament experience")
+
+    if s.quality_wins + s.quality_losses > 0 and s.quality_win_ratio < 0.33:
+        weaknesses.append("Poor record vs top-50 opponents")
 
     roster = compute_roster_metrics(team)
     if roster["deep_rotation_count"] > 0 and roster["deep_rotation_count"] <= 5:

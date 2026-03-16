@@ -22,7 +22,15 @@
       "losses": 2,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 25.64,
+      "bpi_offensive": 12.85,
+      "bpi_defensive": 12.79,
+      "bpi_rank": 1,
+      "sor_rank": 3,
+      "quality_wins": 15,
+      "quality_losses": 2,
+      "espn_sos_rank": 13
     },
     "players": [
       {
@@ -598,7 +606,15 @@
       "losses": 5,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 19.4,
+      "bpi_offensive": 9.08,
+      "bpi_defensive": 10.32,
+      "bpi_rank": 10,
+      "sor_rank": 4,
+      "quality_wins": 8,
+      "quality_losses": 3,
+      "espn_sos_rank": 22
     },
     "players": [
       {
@@ -1212,7 +1228,15 @@
       "losses": 7,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 18.42,
+      "bpi_offensive": 8.02,
+      "bpi_defensive": 10.4,
+      "bpi_rank": 13,
+      "sor_rank": 13,
+      "quality_wins": 11,
+      "quality_losses": 6,
+      "espn_sos_rank": 15
     },
     "players": [
       {
@@ -1808,7 +1832,15 @@
       "losses": 10,
       "last10_wins": 5,
       "last10_losses": 5,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.59,
+      "bpi_offensive": 6.1,
+      "bpi_defensive": 10.48,
+      "bpi_rank": 22,
+      "sor_rank": 18,
+      "quality_wins": 11,
+      "quality_losses": 8,
+      "espn_sos_rank": 3
     },
     "players": [
       {
@@ -2432,7 +2464,15 @@
       "losses": 6,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 17.81,
+      "bpi_offensive": 7.32,
+      "bpi_defensive": 10.49,
+      "bpi_rank": 16,
+      "sor_rank": 16,
+      "quality_wins": 5,
+      "quality_losses": 5,
+      "espn_sos_rank": 14
     },
     "players": [
       {
@@ -3046,7 +3086,15 @@
       "losses": 10,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 19.08,
+      "bpi_offensive": 10.35,
+      "bpi_defensive": 8.72,
+      "bpi_rank": 11,
+      "sor_rank": 26,
+      "quality_wins": 8,
+      "quality_losses": 9,
+      "espn_sos_rank": 41
     },
     "players": [
       {
@@ -3651,7 +3699,15 @@
       "losses": 11,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 15.17,
+      "bpi_offensive": 8.79,
+      "bpi_defensive": 6.37,
+      "bpi_rank": 25,
+      "sor_rank": 29,
+      "quality_wins": 6,
+      "quality_losses": 9,
+      "espn_sos_rank": 50
     },
     "players": [
       {
@@ -4246,7 +4302,15 @@
       "losses": 12,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.89,
+      "bpi_offensive": 9.38,
+      "bpi_defensive": 5.51,
+      "bpi_rank": 26,
+      "sor_rank": 33,
+      "quality_wins": 6,
+      "quality_losses": 11,
+      "espn_sos_rank": 20
     },
     "players": [
       {
@@ -4832,7 +4896,15 @@
       "losses": 11,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 11.2,
+      "bpi_offensive": 3.62,
+      "bpi_defensive": 7.57,
+      "bpi_rank": 48,
+      "sor_rank": 35,
+      "quality_wins": 8,
+      "quality_losses": 6,
+      "espn_sos_rank": 71
     },
     "players": [
       {
@@ -5475,7 +5547,15 @@
       "losses": 11,
       "last10_wins": 4,
       "last10_losses": 6,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 9.63,
+      "bpi_offensive": 6.59,
+      "bpi_defensive": 3.04,
+      "bpi_rank": 57,
+      "sor_rank": 37,
+      "quality_wins": 7,
+      "quality_losses": 9,
+      "espn_sos_rank": 37
     },
     "players": [
       {
@@ -6071,7 +6151,15 @@
       "losses": 8,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 10.54,
+      "bpi_offensive": 5.1,
+      "bpi_defensive": 5.44,
+      "bpi_rank": 51,
+      "sor_rank": 50,
+      "quality_wins": 1,
+      "quality_losses": 2,
+      "espn_sos_rank": 95
     },
     "players": [
       {
@@ -6667,7 +6755,15 @@
       "losses": 12,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 7.37,
+      "bpi_offensive": 0.23,
+      "bpi_defensive": 7.15,
+      "bpi_rank": 82,
+      "sor_rank": 105,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 121
     },
     "players": [
       {
@@ -7252,7 +7348,15 @@
       "losses": 8,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 1.59,
+      "bpi_offensive": -1.36,
+      "bpi_defensive": 2.95,
+      "bpi_rank": 137,
+      "sor_rank": 85,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 224
     },
     "players": [
       {
@@ -7838,7 +7942,15 @@
       "losses": 7,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 1.94,
+      "bpi_offensive": 1.21,
+      "bpi_defensive": 0.73,
+      "bpi_rank": 133,
+      "sor_rank": 98,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 332
     },
     "players": [
       {
@@ -8433,7 +8545,15 @@
       "losses": 12,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -0.12,
+      "bpi_offensive": -0.69,
+      "bpi_defensive": 0.57,
+      "bpi_rank": 160,
+      "sor_rank": 158,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 282
     },
     "players": [
       {
@@ -9047,7 +9167,15 @@
       "losses": 11,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -1.82,
+      "bpi_offensive": -1.92,
+      "bpi_defensive": 0.11,
+      "bpi_rank": 196,
+      "sor_rank": 159,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 330
     },
     "players": [
       {
@@ -9699,7 +9827,15 @@
       "losses": 2,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 24.1,
+      "bpi_offensive": 11.72,
+      "bpi_defensive": 12.38,
+      "bpi_rank": 2,
+      "sor_rank": 2,
+      "quality_wins": 17,
+      "quality_losses": 3,
+      "espn_sos_rank": 2
     },
     "players": [
       {
@@ -10304,7 +10440,15 @@
       "losses": 7,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 21.51,
+      "bpi_offensive": 10.1,
+      "bpi_defensive": 11.41,
+      "bpi_rank": 6,
+      "sor_rank": 14,
+      "quality_wins": 9,
+      "quality_losses": 7,
+      "espn_sos_rank": 49
     },
     "players": [
       {
@@ -10899,7 +11043,15 @@
       "losses": 5,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.73,
+      "bpi_offensive": 8.52,
+      "bpi_defensive": 8.21,
+      "bpi_rank": 20,
+      "sor_rank": 9,
+      "quality_wins": 9,
+      "quality_losses": 3,
+      "espn_sos_rank": 58
     },
     "players": [
       {
@@ -11513,7 +11665,15 @@
       "losses": 9,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 17.88,
+      "bpi_offensive": 12.34,
+      "bpi_defensive": 5.54,
+      "bpi_rank": 15,
+      "sor_rank": 15,
+      "quality_wins": 11,
+      "quality_losses": 8,
+      "espn_sos_rank": 1
     },
     "players": [
       {
@@ -12185,7 +12345,15 @@
       "losses": 10,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.6,
+      "bpi_offensive": 9.97,
+      "bpi_defensive": 6.63,
+      "bpi_rank": 21,
+      "sor_rank": 20,
+      "quality_wins": 8,
+      "quality_losses": 8,
+      "espn_sos_rank": 9
     },
     "players": [
       {
@@ -12762,7 +12930,15 @@
       "losses": 11,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 18.88,
+      "bpi_offensive": 8.67,
+      "bpi_defensive": 10.21,
+      "bpi_rank": 12,
+      "sor_rank": 22,
+      "quality_wins": 10,
+      "quality_losses": 10,
+      "espn_sos_rank": 11
     },
     "players": [
       {
@@ -13405,7 +13581,15 @@
       "losses": 13,
       "last10_wins": 4,
       "last10_losses": 6,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.52,
+      "bpi_offensive": 8.89,
+      "bpi_defensive": 7.64,
+      "bpi_rank": 23,
+      "sor_rank": 27,
+      "quality_wins": 9,
+      "quality_losses": 13,
+      "espn_sos_rank": 10
     },
     "players": [
       {
@@ -14019,7 +14203,15 @@
       "losses": 10,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.08,
+      "bpi_offensive": 9.0,
+      "bpi_defensive": 5.07,
+      "bpi_rank": 33,
+      "sor_rank": 31,
+      "quality_wins": 7,
+      "quality_losses": 8,
+      "espn_sos_rank": 63
     },
     "players": [
       {
@@ -14615,7 +14807,15 @@
       "losses": 5,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 13.83,
+      "bpi_offensive": 7.52,
+      "bpi_defensive": 6.31,
+      "bpi_rank": 35,
+      "sor_rank": 38,
+      "quality_wins": 3,
+      "quality_losses": 0,
+      "espn_sos_rank": 112
     },
     "players": [
       {
@@ -15201,7 +15401,15 @@
       "losses": 8,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 10.86,
+      "bpi_offensive": 7.03,
+      "bpi_defensive": 3.83,
+      "bpi_rank": 49,
+      "sor_rank": 42,
+      "quality_wins": 2,
+      "quality_losses": 5,
+      "espn_sos_rank": 90
     },
     "players": [
       {
@@ -15777,7 +15985,15 @@
       "losses": 13,
       "last10_wins": 4,
       "last10_losses": 6,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 12.55,
+      "bpi_offensive": 8.54,
+      "bpi_defensive": 4.01,
+      "bpi_rank": 42,
+      "sor_rank": 49,
+      "quality_wins": 3,
+      "quality_losses": 8,
+      "espn_sos_rank": 45
     },
     "players": [
       {
@@ -16382,7 +16598,15 @@
       "losses": 1,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 6.23,
+      "bpi_offensive": 5.06,
+      "bpi_defensive": 1.17,
+      "bpi_rank": 93,
+      "sor_rank": 28,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 296
     },
     "players": [
       {
@@ -16997,7 +17221,15 @@
       "losses": 5,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 7.72,
+      "bpi_offensive": 5.6,
+      "bpi_defensive": 2.12,
+      "bpi_rank": 77,
+      "sor_rank": 52,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 237
     },
     "players": [
       {
@@ -17592,7 +17824,15 @@
       "losses": 10,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 4.61,
+      "bpi_offensive": 1.52,
+      "bpi_defensive": 3.09,
+      "bpi_rank": 102,
+      "sor_rank": 102,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 162
     },
     "players": [
       {
@@ -18168,7 +18408,15 @@
       "losses": 11,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 1.47,
+      "bpi_offensive": 1.4,
+      "bpi_defensive": 0.08,
+      "bpi_rank": 140,
+      "sor_rank": 139,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 268
     },
     "players": [
       {
@@ -18744,7 +18992,15 @@
       "losses": 9,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -2.63,
+      "bpi_offensive": -2.01,
+      "bpi_defensive": -0.62,
+      "bpi_rank": 206,
+      "sor_rank": 128,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 343
     },
     "players": [
       {
@@ -19340,7 +19596,15 @@
       "losses": 10,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -2.51,
+      "bpi_offensive": -3.3,
+      "bpi_defensive": 0.79,
+      "bpi_rank": 204,
+      "sor_rank": 187,
+      "quality_wins": 0,
+      "quality_losses": 2,
+      "espn_sos_rank": 365
     },
     "players": [
       {
@@ -19983,7 +20247,15 @@
       "losses": 8,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -1.18,
+      "bpi_offensive": -1.04,
+      "bpi_defensive": -0.14,
+      "bpi_rank": 180,
+      "sor_rank": 123,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 363
     },
     "players": [
       {
@@ -20579,7 +20851,15 @@
       "losses": 7,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 22.33,
+      "bpi_offensive": 10.92,
+      "bpi_defensive": 11.4,
+      "bpi_rank": 5,
+      "sor_rank": 5,
+      "quality_wins": 13,
+      "quality_losses": 7,
+      "espn_sos_rank": 5
     },
     "players": [
       {
@@ -21184,7 +21464,15 @@
       "losses": 6,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 23.03,
+      "bpi_offensive": 10.45,
+      "bpi_defensive": 12.58,
+      "bpi_rank": 4,
+      "sor_rank": 6,
+      "quality_wins": 12,
+      "quality_losses": 6,
+      "espn_sos_rank": 27
     },
     "players": [
       {
@@ -21779,7 +22067,15 @@
       "losses": 8,
       "last10_wins": 5,
       "last10_losses": 5,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 21.02,
+      "bpi_offensive": 13.13,
+      "bpi_defensive": 7.89,
+      "bpi_rank": 7,
+      "sor_rank": 17,
+      "quality_wins": 9,
+      "quality_losses": 8,
+      "espn_sos_rank": 17
     },
     "players": [
       {
@@ -22356,7 +22652,15 @@
       "losses": 6,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.94,
+      "bpi_offensive": 6.09,
+      "bpi_defensive": 10.86,
+      "bpi_rank": 18,
+      "sor_rank": 10,
+      "quality_wins": 8,
+      "quality_losses": 6,
+      "espn_sos_rank": 51
     },
     "players": [
       {
@@ -22933,7 +23237,15 @@
       "losses": 7,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 18.17,
+      "bpi_offensive": 11.06,
+      "bpi_defensive": 7.11,
+      "bpi_rank": 14,
+      "sor_rank": 12,
+      "quality_wins": 11,
+      "quality_losses": 8,
+      "espn_sos_rank": 7
     },
     "players": [
       {
@@ -23557,7 +23869,15 @@
       "losses": 8,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.46,
+      "bpi_offensive": 7.66,
+      "bpi_defensive": 6.8,
+      "bpi_rank": 30,
+      "sor_rank": 21,
+      "quality_wins": 7,
+      "quality_losses": 6,
+      "espn_sos_rank": 40
     },
     "players": [
       {
@@ -24191,7 +24511,15 @@
       "losses": 5,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.81,
+      "bpi_offensive": 5.99,
+      "bpi_defensive": 8.82,
+      "bpi_rank": 27,
+      "sor_rank": 30,
+      "quality_wins": 2,
+      "quality_losses": 4,
+      "espn_sos_rank": 96
     },
     "players": [
       {
@@ -24768,7 +25096,15 @@
       "losses": 10,
       "last10_wins": 4,
       "last10_losses": 6,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.61,
+      "bpi_offensive": 5.91,
+      "bpi_defensive": 8.7,
+      "bpi_rank": 29,
+      "sor_rank": 32,
+      "quality_wins": 7,
+      "quality_losses": 6,
+      "espn_sos_rank": 53
     },
     "players": [
       {
@@ -25344,7 +25680,15 @@
       "losses": 12,
       "last10_wins": 3,
       "last10_losses": 7,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.42,
+      "bpi_offensive": 8.21,
+      "bpi_defensive": 6.21,
+      "bpi_rank": 31,
+      "sor_rank": 40,
+      "quality_wins": 5,
+      "quality_losses": 9,
+      "espn_sos_rank": 54
     },
     "players": [
       {
@@ -25911,7 +26255,15 @@
       "losses": 11,
       "last10_wins": 4,
       "last10_losses": 6,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.19,
+      "bpi_offensive": 8.33,
+      "bpi_defensive": 5.86,
+      "bpi_rank": 32,
+      "sor_rank": 36,
+      "quality_wins": 6,
+      "quality_losses": 9,
+      "espn_sos_rank": 68
     },
     "players": [
       {
@@ -26526,7 +26878,15 @@
       "losses": 7,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 11.7,
+      "bpi_offensive": 6.6,
+      "bpi_defensive": 5.1,
+      "bpi_rank": 46,
+      "sor_rank": 39,
+      "quality_wins": 0,
+      "quality_losses": 5,
+      "espn_sos_rank": 92
     },
     "players": [
       {
@@ -27112,7 +27472,15 @@
       "losses": 5,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 9.42,
+      "bpi_offensive": 4.45,
+      "bpi_defensive": 4.97,
+      "bpi_rank": 60,
+      "sor_rank": 47,
+      "quality_wins": 0,
+      "quality_losses": 2,
+      "espn_sos_rank": 192
     },
     "players": [
       {
@@ -27660,7 +28028,15 @@
       "losses": 11,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 1.91,
+      "bpi_offensive": 0.4,
+      "bpi_defensive": 1.51,
+      "bpi_rank": 134,
+      "sor_rank": 126,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 197
     },
     "players": [
       {
@@ -28265,7 +28641,15 @@
       "losses": 11,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -0.1,
+      "bpi_offensive": -0.96,
+      "bpi_defensive": 0.86,
+      "bpi_rank": 158,
+      "sor_rank": 117,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 145
     },
     "players": [
       {
@@ -28882,7 +29266,15 @@
       "losses": 14,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -0.63,
+      "bpi_offensive": -0.69,
+      "bpi_defensive": 0.06,
+      "bpi_rank": 172,
+      "sor_rank": 194,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 275
     },
     "players": [
       {
@@ -29467,7 +29859,15 @@
       "losses": 17,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -7.8,
+      "bpi_offensive": -6.14,
+      "bpi_defensive": -1.66,
+      "bpi_rank": 297,
+      "sor_rank": 194,
+      "quality_wins": 0,
+      "quality_losses": 2,
+      "espn_sos_rank": 354
     },
     "players": [
       {
@@ -30109,7 +30509,15 @@
       "losses": 16,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -7.08,
+      "bpi_offensive": -5.17,
+      "bpi_defensive": -1.91,
+      "bpi_rank": 288,
+      "sor_rank": 194,
+      "quality_wins": 0,
+      "quality_losses": 2,
+      "espn_sos_rank": 323
     },
     "players": [
       {
@@ -30704,7 +31112,15 @@
       "losses": 2,
       "last10_wins": 9,
       "last10_losses": 1,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 23.74,
+      "bpi_offensive": 11.93,
+      "bpi_defensive": 11.8,
+      "bpi_rank": 3,
+      "sor_rank": 1,
+      "quality_wins": 16,
+      "quality_losses": 2,
+      "espn_sos_rank": 24
     },
     "players": [
       {
@@ -31318,7 +31734,15 @@
       "losses": 8,
       "last10_wins": 6,
       "last10_losses": 4,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 20.63,
+      "bpi_offensive": 13.79,
+      "bpi_defensive": 6.84,
+      "bpi_rank": 9,
+      "sor_rank": 7,
+      "quality_wins": 12,
+      "quality_losses": 8,
+      "espn_sos_rank": 4
     },
     "players": [
       {
@@ -31913,7 +32337,15 @@
       "losses": 3,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 20.65,
+      "bpi_offensive": 9.64,
+      "bpi_defensive": 11.01,
+      "bpi_rank": 8,
+      "sor_rank": 11,
+      "quality_wins": 8,
+      "quality_losses": 2,
+      "espn_sos_rank": 89
     },
     "players": [
       {
@@ -32518,7 +32950,15 @@
       "losses": 8,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.95,
+      "bpi_offensive": 11.08,
+      "bpi_defensive": 5.87,
+      "bpi_rank": 17,
+      "sor_rank": 8,
+      "quality_wins": 12,
+      "quality_losses": 8,
+      "espn_sos_rank": 8
     },
     "players": [
       {
@@ -33104,7 +33544,15 @@
       "losses": 10,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 15.77,
+      "bpi_offensive": 10.03,
+      "bpi_defensive": 5.73,
+      "bpi_rank": 24,
+      "sor_rank": 19,
+      "quality_wins": 10,
+      "quality_losses": 8,
+      "espn_sos_rank": 19
     },
     "players": [
       {
@@ -33718,7 +34166,15 @@
       "losses": 11,
       "last10_wins": 5,
       "last10_losses": 5,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 16.77,
+      "bpi_offensive": 10.94,
+      "bpi_defensive": 5.83,
+      "bpi_rank": 19,
+      "sor_rank": 24,
+      "quality_wins": 9,
+      "quality_losses": 9,
+      "espn_sos_rank": 23
     },
     "players": [
       {
@@ -34332,7 +34788,15 @@
       "losses": 8,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 13.27,
+      "bpi_offensive": 7.66,
+      "bpi_defensive": 5.6,
+      "bpi_rank": 40,
+      "sor_rank": 25,
+      "quality_wins": 4,
+      "quality_losses": 6,
+      "espn_sos_rank": 76
     },
     "players": [
       {
@@ -34899,7 +35363,15 @@
       "losses": 8,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 13.62,
+      "bpi_offensive": 7.44,
+      "bpi_defensive": 6.18,
+      "bpi_rank": 36,
+      "sor_rank": 23,
+      "quality_wins": 1,
+      "quality_losses": 6,
+      "espn_sos_rank": 34
     },
     "players": [
       {
@@ -35476,7 +35948,15 @@
       "losses": 6,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 14.05,
+      "bpi_offensive": 8.56,
+      "bpi_defensive": 5.48,
+      "bpi_rank": 34,
+      "sor_rank": 34,
+      "quality_wins": 1,
+      "quality_losses": 0,
+      "espn_sos_rank": 81
     },
     "players": [
       {
@@ -36052,7 +36532,15 @@
       "losses": 12,
       "last10_wins": 5,
       "last10_losses": 5,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 12.04,
+      "bpi_offensive": 7.73,
+      "bpi_defensive": 4.31,
+      "bpi_rank": 44,
+      "sor_rank": 41,
+      "quality_wins": 7,
+      "quality_losses": 9,
+      "espn_sos_rank": 59
     },
     "players": [
       {
@@ -36629,7 +37117,15 @@
       "losses": 14,
       "last10_wins": 5,
       "last10_losses": 5,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 13.47,
+      "bpi_offensive": 9.85,
+      "bpi_defensive": 3.62,
+      "bpi_rank": 39,
+      "sor_rank": 44,
+      "quality_wins": 7,
+      "quality_losses": 11,
+      "espn_sos_rank": 61
     },
     "players": [
       {
@@ -37206,7 +37702,15 @@
       "losses": 13,
       "last10_wins": 3,
       "last10_losses": 7,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 13.54,
+      "bpi_offensive": 9.1,
+      "bpi_defensive": 4.43,
+      "bpi_rank": 37,
+      "sor_rank": 45,
+      "quality_wins": 4,
+      "quality_losses": 9,
+      "espn_sos_rank": 25
     },
     "players": [
       {
@@ -37792,7 +38296,15 @@
       "losses": 4,
       "last10_wins": 10,
       "last10_losses": 0,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 8.92,
+      "bpi_offensive": 6.31,
+      "bpi_defensive": 2.61,
+      "bpi_rank": 63,
+      "sor_rank": 66,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 346
     },
     "players": [
       {
@@ -38425,7 +38937,15 @@
       "losses": 8,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 2.77,
+      "bpi_offensive": -1.45,
+      "bpi_defensive": 4.22,
+      "bpi_rank": 122,
+      "sor_rank": 103,
+      "quality_wins": 0,
+      "quality_losses": 0,
+      "espn_sos_rank": 301
     },
     "players": [
       {
@@ -38983,7 +39503,15 @@
       "losses": 13,
       "last10_wins": 7,
       "last10_losses": 3,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": 2.47,
+      "bpi_offensive": 1.56,
+      "bpi_defensive": 0.91,
+      "bpi_rank": 125,
+      "sor_rank": 148,
+      "quality_wins": 0,
+      "quality_losses": 1,
+      "espn_sos_rank": 182
     },
     "players": [
       {
@@ -39597,7 +40125,15 @@
       "losses": 13,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -1.76,
+      "bpi_offensive": 3.24,
+      "bpi_defensive": -5.0,
+      "bpi_rank": 193,
+      "sor_rank": 143,
+      "quality_wins": 0,
+      "quality_losses": 4,
+      "espn_sos_rank": 247
     },
     "players": [
       {
@@ -40211,7 +40747,15 @@
       "losses": 10,
       "last10_wins": 8,
       "last10_losses": 2,
-      "tournament_experience": 0.0
+      "tournament_experience": 0.0,
+      "bpi": -3.32,
+      "bpi_offensive": -3.14,
+      "bpi_defensive": -0.17,
+      "bpi_rank": 218,
+      "sor_rank": 142,
+      "quality_wins": 0,
+      "quality_losses": 2,
+      "espn_sos_rank": 336
     },
     "players": [
       {

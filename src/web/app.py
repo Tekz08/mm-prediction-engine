@@ -188,6 +188,22 @@ def matchup_detail(team_a_name, team_b_name):
     )
 
 
+def _parse_weights(source):
+    weights = {}
+    for key, param in [("weight_historical", "w_hist"), ("weight_efficiency", "w_eff"),
+                       ("weight_profile", "w_prof"), ("weight_matchup", "w_match")]:
+        val = source.get(param)
+        if val is not None:
+            weights[key] = float(val) / 100.0
+    return weights if weights else None
+
+
+def _make_evaluator(data, weights):
+    if not weights:
+        return data["evaluator"]
+    return MatchupEvaluator(data["historical"], data["profiles"], **weights)
+
+
 @app.route("/advisor")
 def advisor_page():
     return render_template("advisor.html", year=config.CURRENT_YEAR)
@@ -201,8 +217,10 @@ def api_advisor():
     seed = body.get("seed")
 
     data = _get_data(year)
+    weights = _parse_weights(body)
+    evaluator = _make_evaluator(data, weights)
     engine = MonteCarloEngine(
-        data["bracket_sim"], data["evaluator"],
+        data["bracket_sim"], evaluator,
         iterations=iterations, seed=seed,
     )
     raw = engine.run()
@@ -210,7 +228,7 @@ def api_advisor():
     consensus = engine.predict_consensus_bracket()
 
     adv = BracketAdvisor(
-        data["evaluator"], sim_results,
+        evaluator, sim_results,
         data["teams_by_name"], data["profiles"],
     )
     picks = adv.generate_bracket(consensus)
@@ -225,8 +243,10 @@ def api_advisor_stream():
     seed = int(seed_val) if seed_val else None
 
     data = _get_data(year)
+    weights = _parse_weights(request.args)
+    evaluator = _make_evaluator(data, weights)
     engine = MonteCarloEngine(
-        data["bracket_sim"], data["evaluator"],
+        data["bracket_sim"], evaluator,
         iterations=iterations, seed=seed,
     )
 
@@ -240,7 +260,7 @@ def api_advisor_stream():
         sim_results = SimulationResults(raw)
         consensus = engine.predict_consensus_bracket()
         adv = BracketAdvisor(
-            data["evaluator"], sim_results,
+            evaluator, sim_results,
             data["teams_by_name"], data["profiles"],
         )
         picks = adv.generate_bracket(consensus)

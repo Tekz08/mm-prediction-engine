@@ -19,13 +19,13 @@ from src.simulation.results import SimulationResults
 console = Console()
 
 
-def _build_engine(year: int, iterations: int, seed: int | None = None):
+def _build_engine(year: int, iterations: int, seed: int | None = None, weights: dict | None = None):
     teams = load_teams(year)
     teams_by_name = {t.name: t for t in teams}
     bracket = load_bracket(year)
     historical = HistoricalAnalyzer()
     profiles = build_all_profiles(teams, historical)
-    evaluator = MatchupEvaluator(historical, profiles)
+    evaluator = MatchupEvaluator(historical, profiles, **(weights or {}))
     bracket_sim = BracketSimulator(bracket, teams_by_name)
     engine = MonteCarloEngine(bracket_sim, evaluator, iterations=iterations, seed=seed)
     return engine, teams, teams_by_name, profiles
@@ -332,12 +332,36 @@ def matchup(team_a_name, team_b_name, year):
 @click.option("--year", default=config.CURRENT_YEAR, help="Tournament year")
 @click.option("--iterations", "-n", default=config.DEFAULT_ITERATIONS, help="Number of simulations")
 @click.option("--seed", "-s", default=None, type=int, help="Random seed")
-def advisor(year, iterations, seed):
+@click.option("--w-hist", default=None, type=float, help="Historical weight (0-100)")
+@click.option("--w-eff", default=None, type=float, help="Efficiency weight (0-100)")
+@click.option("--w-prof", default=None, type=float, help="Profile weight (0-100)")
+@click.option("--w-match", default=None, type=float, help="Matchup weight (0-100)")
+def advisor(year, iterations, seed, w_hist, w_eff, w_prof, w_match):
     """Generate a complete bracket recommendation with confidence levels and upset picks."""
+    weights = {}
+    if w_hist is not None:
+        weights["weight_historical"] = w_hist / 100.0
+    if w_eff is not None:
+        weights["weight_efficiency"] = w_eff / 100.0
+    if w_prof is not None:
+        weights["weight_profile"] = w_prof / 100.0
+    if w_match is not None:
+        weights["weight_matchup"] = w_match / 100.0
+
     console.print(f"\n[bold cyan]NCAA March Madness {year} - Bracket Advisor[/bold cyan]")
+    w = weights if weights else {
+        "weight_historical": config.WEIGHT_HISTORICAL,
+        "weight_efficiency": config.WEIGHT_EFFICIENCY,
+        "weight_profile": config.WEIGHT_PROFILE,
+        "weight_matchup": config.WEIGHT_MATCHUP,
+    }
+    console.print(f"Weights: Historical={w.get('weight_historical', config.WEIGHT_HISTORICAL):.0%}  "
+                  f"Efficiency={w.get('weight_efficiency', config.WEIGHT_EFFICIENCY):.0%}  "
+                  f"Profile={w.get('weight_profile', config.WEIGHT_PROFILE):.0%}  "
+                  f"Matchup={w.get('weight_matchup', config.WEIGHT_MATCHUP):.0%}")
     console.print(f"Running {iterations:,} simulations to build your bracket...\n")
 
-    engine, teams, teams_by_name, profiles = _build_engine(year, iterations, seed)
+    engine, teams, teams_by_name, profiles = _build_engine(year, iterations, seed, weights or None)
 
     with Progress(console=console) as progress:
         task = progress.add_task("Simulating tournaments...", total=iterations)
