@@ -1,0 +1,10 @@
+pandas
+numpy
+pydantic
+scipy
+flask
+requests
+beautifulsoup4
+plotly
+click
+rich

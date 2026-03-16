@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+{% block title %}{{ team_a.name }} vs {{ team_b.name }} - March Madness Predictor{% endblock %}
+{% block content %}
+<style>
+    .prob-bar-a { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .prob-bar-b { background: linear-gradient(90deg, #f97316, #fb923c); }
+    .stat-better { color: #4ade80; font-weight: 700; }
+    .stat-worse  { color: #f87171; }
+    .compare-bar { height: 6px; border-radius: 3px; background: #374151; overflow: hidden; }
+    .compare-fill-a { background: #3b82f6; }
+    .compare-fill-b { background: #f97316; }
+</style>
+
+<div class="mb-4">
+    <a href="/matchup" class="text-sm text-gray-400 hover:text-ncaa-orange transition">&larr; Back to Matchup Picker</a>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6">
+    <div class="grid grid-cols-3 items-center">
+        <div class="text-center">
+            <a href="/team/{{ team_a.name }}" class="hover:text-blue-400 transition">
+                <div class="text-3xl font-bold text-blue-400">{{ team_a.name }}</div>
+            </a>
+            <div class="text-gray-400 mt-1">{{ team_a.conference }}</div>
+            <div class="flex items-center justify-center gap-4 mt-2">
+                <div>
+                    <div class="text-2xl font-bold text-blue-400">{{ team_a.seed }}</div>
+                    <div class="text-xs text-gray-400">Seed</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">{{ team_a.stats.wins }}-{{ team_a.stats.losses }}</div>
+                    <div class="text-xs text-gray-400">Record</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-green-400">{{ profile_a.composite_score }}</div>
+                    <div class="text-xs text-gray-400">Rating</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <div class="text-sm text-gray-500 uppercase tracking-wider">Head to Head</div>
+            <div class="text-5xl font-black text-gray-500 my-2">VS</div>
+            <div class="text-xs text-gray-500">{{ team_a.region }} Region</div>
+        </div>
+        <div class="text-center">
+            <a href="/team/{{ team_b.name }}" class="hover:text-ncaa-orange transition">
+                <div class="text-3xl font-bold text-ncaa-orange">{{ team_b.name }}</div>
+            </a>
+            <div class="text-gray-400 mt-1">{{ team_b.conference }}</div>
+            <div class="flex items-center justify-center gap-4 mt-2">
+                <div>
+                    <div class="text-2xl font-bold text-ncaa-orange">{{ team_b.seed }}</div>
+                    <div class="text-xs text-gray-400">Seed</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">{{ team_b.stats.wins }}-{{ team_b.stats.losses }}</div>
+                    <div class="text-xs text-gray-400">Record</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-green-400">{{ profile_b.composite_score }}</div>
+                    <div class="text-xs text-gray-400">Rating</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4 text-center">Win Probability</h3>
+    {% set prob_a = (breakdown.win_prob_a * 100)|round(1) %}
+    {% set prob_b = ((1 - breakdown.win_prob_a) * 100)|round(1) %}
+    <div class="flex items-center gap-4 mb-3">
+        <div class="text-right w-24">
+            <span class="text-2xl font-black text-blue-400">{{ prob_a }}%</span>
+        </div>
+        <div class="flex-1 h-8 rounded-full overflow-hidden flex bg-gray-700">
+            <div class="prob-bar-a h-full transition-all duration-500" style="width: {{ prob_a }}%"></div>
+            <div class="prob-bar-b h-full transition-all duration-500" style="width: {{ prob_b }}%"></div>
+        </div>
+        <div class="w-24">
+            <span class="text-2xl font-black text-ncaa-orange">{{ prob_b }}%</span>
+        </div>
+    </div>
+    <div class="flex justify-between text-sm text-gray-400 px-28">
+        <span>{{ team_a.name }}</span>
+        <span>{{ team_b.name }}</span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        {% set comps = [
+            ("Historical (Seed)", breakdown.components.historical.team_a_prob, breakdown.components.historical.weight),
+            ("Efficiency", breakdown.components.efficiency.team_a_prob, breakdown.components.efficiency.weight),
+            ("Team Profile", breakdown.components.profile.team_a_prob, breakdown.components.profile.weight),
+            ("Matchup Specific", breakdown.components.matchup.team_a_prob, breakdown.components.matchup.weight),
+        ] %}
+        {% for label, team_a_prob, weight in comps %}
+        {% set pct_a = (team_a_prob * 100)|round(1) %}
+        {% set pct_b = ((1 - team_a_prob) * 100)|round(1) %}
+        <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-400 uppercase tracking-wider mb-2">{{ label }}</div>
+            <div class="text-xs text-gray-500 mb-2">Weight: {{ (weight * 100)|round(0) }}%</div>
+            <div class="flex justify-between text-sm font-bold mb-1">
+                <span class="text-blue-400">{{ pct_a }}%</span>
+                <span class="text-ncaa-orange">{{ pct_b }}%</span>
+            </div>
+            <div class="compare-bar">
+                <div class="compare-fill-a h-full float-left" style="width: {{ pct_a }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if team_a.coach.name or team_b.coach.name %}
+<div class="glass rounded-xl p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4">Coach Comparison</h3>
+    <div class="grid grid-cols-3 gap-2 text-center text-sm">
+        {% set coach_stats = [
+            ("Coach", team_a.coach.name, team_b.coach.name, false),
+            ("Career Record", team_a.coach.career_wins|string + "-" + team_a.coach.career_losses|string, team_b.coach.career_wins|string + "-" + team_b.coach.career_losses|string, false),
+            ("Win %", team_a.coach.career_win_pct, team_b.coach.career_win_pct, true),
+            ("Years Coaching", team_a.coach.years_coaching, team_b.coach.years_coaching, true),
+            ("Tourney Apps", team_a.coach.tourney_appearances, team_b.coach.tourney_appearances, true),
+            ("Tourney W-L", team_a.coach.tourney_wins|string + "-" + team_a.coach.tourney_losses|string, team_b.coach.tourney_wins|string + "-" + team_b.coach.tourney_losses|string, false),
+            ("Final Fours", team_a.coach.final_fours, team_b.coach.final_fours, true),
+            ("Championships", team_a.coach.championships, team_b.coach.championships, true),
+        ] %}
+        {% for label, val_a, val_b, can_compare in coach_stats %}
+        <div class="py-2 {% if can_compare and val_a is number and val_b is number %}{{ 'stat-better' if val_a > val_b else ('stat-worse' if val_a < val_b else '') }}{% endif %}">
+            {% if val_a is number %}{{ "%.1f"|format(val_a) if val_a != val_a|int else val_a }}{% else %}{{ val_a }}{% endif %}
+        </div>
+        <div class="py-2 text-gray-400 text-xs uppercase tracking-wider flex items-center justify-center">{{ label }}</div>
+        <div class="py-2 {% if can_compare and val_a is number and val_b is number %}{{ 'stat-better' if val_b > val_a else ('stat-worse' if val_b < val_a else '') }}{% endif %}">
+            {% if val_b is number %}{{ "%.1f"|format(val_b) if val_b != val_b|int else val_b }}{% else %}{{ val_b }}{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="glass rounded-xl p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4">Profile Scores</h3>
+    {% set scores = [
+        ("Offensive", profile_a.offensive_score, profile_b.offensive_score),
+        ("Defensive", profile_a.defensive_score, profile_b.defensive_score),
+        ("Intangible", profile_a.intangible_score, profile_b.intangible_score),
+        ("Composite", profile_a.composite_score, profile_b.composite_score),
+    ] %}
+    {% for label, score_a, score_b in scores %}
+    <div class="mb-4">
+        <div class="flex justify-between text-sm mb-1">
+            <span class="{{ 'stat-better' if score_a > score_b else ('stat-worse' if score_a < score_b else 'text-gray-300') }}">{{ score_a }}</span>
+            <span class="text-gray-400">{{ label }}</span>
+            <span class="{{ 'stat-better' if score_b > score_a else ('stat-worse' if score_b < score_a else 'text-gray-300') }}">{{ score_b }}</span>
+        </div>
+        <div class="flex gap-1">
+            <div class="flex-1 h-3 rounded-l-full bg-gray-700 overflow-hidden flex justify-end">
+                <div class="bg-blue-500 h-full rounded-l-full" style="width: {{ score_a }}%"></div>
+            </div>
+            <div class="flex-1 h-3 rounded-r-full bg-gray-700 overflow-hidden">
+                <div class="bg-ncaa-orange h-full rounded-r-full" style="width: {{ score_b }}%"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="glass rounded-xl p-5">
+        <h3 class="text-lg font-bold mb-3">
+            <span class="text-blue-400">{{ team_a.name }}</span>
+            <span class="text-gray-500 text-sm ml-2">Strengths &amp; Weaknesses</span>
+        </h3>
+        {% if profile_a.strengths %}
+        <ul class="space-y-1 mb-3">
+            {% for s in profile_a.strengths %}
+            <li class="flex items-center gap-2 text-sm">
+                <span class="text-green-400">&#9650;</span><span>{{ s }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if profile_a.weaknesses %}
+        <ul class="space-y-1">
+            {% for w in profile_a.weaknesses %}
+            <li class="flex items-center gap-2 text-sm">
+                <span class="text-red-400">&#9660;</span><span>{{ w }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <div class="glass rounded-xl p-5">
+        <h3 class="text-lg font-bold mb-3">
+            <span class="text-ncaa-orange">{{ team_b.name }}</span>
+            <span class="text-gray-500 text-sm ml-2">Strengths &amp; Weaknesses</span>
+        </h3>
+        {% if profile_b.strengths %}
+        <ul class="space-y-1 mb-3">
+            {% for s in profile_b.strengths %}
+            <li class="flex items-center gap-2 text-sm">
+                <span class="text-green-400">&#9650;</span><span>{{ s }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if profile_b.weaknesses %}
+        <ul class="space-y-1">
+            {% for w in profile_b.weaknesses %}
+            <li class="flex items-center gap-2 text-sm">
+                <span class="text-red-400">&#9660;</span><span>{{ w }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4">Key Metrics Comparison</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-gray-400 text-xs uppercase border-b border-gray-700">
+                    <th class="text-right py-2 px-3 w-1/3">{{ team_a.name }}</th>
+                    <th class="text-center py-2 px-3">Metric</th>
+                    <th class="text-left py-2 px-3 w-1/3">{{ team_b.name }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set sa = team_a.stats %}
+                {% set sb = team_b.stats %}
+                {% set metrics = [
+                    ("Adj. Off. Efficiency", sa.adj_offensive_efficiency, sb.adj_offensive_efficiency, true, true),
+                    ("Adj. Def. Efficiency", sa.adj_defensive_efficiency, sb.adj_defensive_efficiency, true, false),
+                    ("Net Efficiency", sa.net_efficiency, sb.net_efficiency, true, true),
+                    ("Tempo", sa.tempo, sb.tempo, true, false),
+                    ("Strength of Schedule", sa.strength_of_schedule, sb.strength_of_schedule, true, true),
+                    ("3PT %", sa.three_pt_pct, sb.three_pt_pct, true, true),
+                    ("3PT Defense %", sa.three_pt_def_pct, sb.three_pt_def_pct, true, false),
+                    ("FT %", sa.ft_pct, sb.ft_pct, true, true),
+                    ("FT Rate", sa.ft_rate, sb.ft_rate, true, true),
+                    ("TO Rate (Off)", sa.turnover_rate_off, sb.turnover_rate_off, true, false),
+                    ("TO Rate (Def)", sa.turnover_rate_def, sb.turnover_rate_def, true, true),
+                    ("Off Reb %", sa.off_rebound_rate, sb.off_rebound_rate, true, true),
+                    ("Def Reb %", sa.def_rebound_rate, sb.def_rebound_rate, true, true),
+                    ("vs Top 25", sa.record_vs_top25, sb.record_vs_top25, false, false),
+                    ("Last 10", sa.last10_wins|string + "-" + sa.last10_losses|string, sb.last10_wins|string + "-" + sb.last10_losses|string, false, false),
+                ] %}
+                {% for label, val_a, val_b, is_num, higher_better in metrics %}
+                <tr class="border-b border-gray-800 hover:bg-white/5">
+                    <td class="text-right py-2 px-3 font-mono
+                        {% if is_num %}
+                            {% if higher_better %}
+                                {{ 'stat-better' if val_a > val_b else ('stat-worse' if val_a < val_b else '') }}
+                            {% else %}
+                                {{ 'stat-better' if val_a < val_b else ('stat-worse' if val_a > val_b else '') }}
+                            {% endif %}
+                        {% endif %}
+                    ">{% if is_num %}{{ "%.1f"|format(val_a) }}{% else %}{{ val_a }}{% endif %}</td>
+                    <td class="text-center py-2 px-3 text-gray-400 text-xs uppercase tracking-wider">{{ label }}</td>
+                    <td class="text-left py-2 px-3 font-mono
+                        {% if is_num %}
+                            {% if higher_better %}
+                                {{ 'stat-better' if val_b > val_a else ('stat-worse' if val_b < val_a else '') }}
+                            {% else %}
+                                {{ 'stat-better' if val_b < val_a else ('stat-worse' if val_b > val_a else '') }}
+                            {% endif %}
+                        {% endif %}
+                    ">{% if is_num %}{{ "%.1f"|format(val_b) }}{% else %}{{ val_b }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6">
+    <h3 class="text-lg font-bold mb-4">Radar Comparison</h3>
+    <div id="radar-chart"></div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    {% for team, profile, color_name, color_hex in [
+        (team_a, profile_a, "blue-400", "#60a5fa"),
+        (team_b, profile_b, "ncaa-orange", "#FF6B00")
+    ] %}
+    <div class="glass rounded-xl p-5">
+        <h3 class="text-lg font-bold mb-3 text-{{ color_name }}">{{ team.name }} — Roster</h3>
+        {% if team.players %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="text-gray-400 uppercase border-b border-gray-700">
+                        <th class="text-left py-1 px-1">Player</th>
+                        <th class="text-center py-1 px-1">Yr</th>
+                        <th class="text-right py-1 px-1">MPG</th>
+                        <th class="text-right py-1 px-1">PPG</th>
+                        <th class="text-right py-1 px-1">RPG</th>
+                        <th class="text-right py-1 px-1">APG</th>
+                        <th class="text-right py-1 px-1">FG%</th>
+                        <th class="text-right py-1 px-1">3P%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in team.players|sort(attribute='ppg', reverse=true) %}
+                    {% if p.mpg >= 5 %}
+                    <tr class="border-b border-gray-800/50 hover:bg-white/5">
+                        <td class="py-1 px-1 font-medium whitespace-nowrap">{{ p.name }}</td>
+                        <td class="text-center py-1 px-1 text-gray-400">{{ p.year }}</td>
+                        <td class="text-right py-1 px-1">{{ "%.1f"|format(p.mpg) }}</td>
+                        <td class="text-right py-1 px-1 font-bold" style="color: {{ color_hex }}">{{ "%.1f"|format(p.ppg) }}</td>
+                        <td class="text-right py-1 px-1">{{ "%.1f"|format(p.rpg) }}</td>
+                        <td class="text-right py-1 px-1">{{ "%.1f"|format(p.apg) }}</td>
+                        <td class="text-right py-1 px-1">{{ "%.1f"|format(p.fg_pct) }}</td>
+                        <td class="text-right py-1 px-1">{{ "%.1f"|format(p.three_pct) }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">No roster data available</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    const radarData = [
+        {
+            type: 'scatterpolar',
+            r: [
+                {{ profile_a.offensive_score }},
+                {{ profile_a.defensive_score }},
+                {{ (team_a.stats.three_pt_pct / 45 * 100)|round(1) }},
+                {{ (team_a.stats.ft_pct / 85 * 100)|round(1) }},
+                {{ ((25 - team_a.stats.turnover_rate_off) / 15 * 100)|round(1) }},
+                {{ (team_a.stats.off_rebound_rate / 40 * 100)|round(1) }},
+                {{ profile_a.intangible_score }},
+                {{ profile_a.offensive_score }}
+            ],
+            theta: ['Offense', 'Defense', '3PT Shooting', 'FT Shooting', 'Ball Security', 'Rebounding', 'Intangibles', 'Offense'],
+            fill: 'toself',
+            fillcolor: 'rgba(96, 165, 250, 0.15)',
+            line: { color: '#60a5fa', width: 2 },
+            name: '{{ team_a.name }}'
+        },
+        {
+            type: 'scatterpolar',
+            r: [
+                {{ profile_b.offensive_score }},
+                {{ profile_b.defensive_score }},
+                {{ (team_b.stats.three_pt_pct / 45 * 100)|round(1) }},
+                {{ (team_b.stats.ft_pct / 85 * 100)|round(1) }},
+                {{ ((25 - team_b.stats.turnover_rate_off) / 15 * 100)|round(1) }},
+                {{ (team_b.stats.off_rebound_rate / 40 * 100)|round(1) }},
+                {{ profile_b.intangible_score }},
+                {{ profile_b.offensive_score }}
+            ],
+            theta: ['Offense', 'Defense', '3PT Shooting', 'FT Shooting', 'Ball Security', 'Rebounding', 'Intangibles', 'Offense'],
+            fill: 'toself',
+            fillcolor: 'rgba(255, 107, 0, 0.15)',
+            line: { color: '#FF6B00', width: 2 },
+            name: '{{ team_b.name }}'
+        }
+    ];
+    const radarLayout = {
+        polar: {
+            bgcolor: 'rgba(0,0,0,0)',
+            radialaxis: { visible: true, range: [0, 100], color: '#666', gridcolor: '#333' },
+            angularaxis: { color: '#999', gridcolor: '#333' }
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#ccc' },
+        showlegend: true,
+        legend: { font: { color: '#ccc' }, x: 0.5, xanchor: 'center', y: -0.1, orientation: 'h' },
+        margin: { t: 30, b: 60, l: 60, r: 60 },
+        height: 450
+    };
+    Plotly.newPlot('radar-chart', radarData, radarLayout, { responsive: true, displayModeBar: false });
+</script>
+{% endblock %}

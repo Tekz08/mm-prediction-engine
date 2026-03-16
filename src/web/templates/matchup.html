@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Matchup Picker - March Madness Predictor{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold mb-1">Head-to-Head Matchup</h1>
+    <p class="text-gray-400">Select two teams to compare</p>
+</div>
+
+<div class="glass rounded-xl p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        <div class="md:col-span-2">
+            <label class="block text-sm text-gray-400 mb-2">Team A</label>
+            <select id="team-a-select" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-ncaa-orange focus:outline-none">
+                <option value="">Select a team...</option>
+                {% set current_region = namespace(val='') %}
+                {% for t in teams %}
+                {% if t.region != current_region.val %}
+                {% if current_region.val %}
+                </optgroup>
+                {% endif %}
+                <optgroup label="{{ t.region }} Region">
+                {% set current_region.val = t.region %}
+                {% endif %}
+                <option value="{{ t.name }}">({{ t.seed }}) {{ t.name }}</option>
+                {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+        <div class="text-center text-2xl font-bold text-gray-500 py-3">VS</div>
+        <div class="md:col-span-2">
+            <label class="block text-sm text-gray-400 mb-2">Team B</label>
+            <select id="team-b-select" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-ncaa-orange focus:outline-none">
+                <option value="">Select a team...</option>
+                {% set current_region2 = namespace(val='') %}
+                {% for t in teams %}
+                {% if t.region != current_region2.val %}
+                {% if current_region2.val %}
+                </optgroup>
+                {% endif %}
+                <optgroup label="{{ t.region }} Region">
+                {% set current_region2.val = t.region %}
+                {% endif %}
+                <option value="{{ t.name }}">({{ t.seed }}) {{ t.name }}</option>
+                {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+    </div>
+    <div class="mt-6 text-center">
+        <button id="compare-btn" class="bg-ncaa-orange hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+            Compare Teams
+        </button>
+    </div>
+</div>
+
+<div class="glass rounded-xl p-6">
+    <h2 class="text-lg font-bold mb-4">Quick Matchups — First Round</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        {% set seed_order = [(1,16),(8,9),(5,12),(4,13),(6,11),(3,14),(7,10),(2,15)] %}
+        {% set by_region = {} %}
+        {% for t in teams %}
+        {% if by_region.update({t.region: by_region.get(t.region, {})}) %}{% endif %}
+        {% if by_region[t.region].update({t.seed: t}) %}{% endif %}
+        {% endfor %}
+        {% for region, seeds in by_region.items() %}
+        <div>
+            <div class="text-sm font-bold text-ncaa-orange mb-2">{{ region }}</div>
+            <div class="space-y-2">
+                {% for high, low in seed_order %}
+                {% if seeds.get(high) and seeds.get(low) %}
+                <a href="/matchup/{{ seeds[high].name }}/{{ seeds[low].name }}"
+                   class="block matchup-card glass rounded-lg p-2 hover:border-ncaa-orange transition">
+                    <div class="flex items-center justify-between text-sm">
+                        <span><span class="text-ncaa-orange font-bold mr-1">{{ high }}</span> {{ seeds[high].name }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm mt-1">
+                        <span><span class="text-gray-400 font-bold mr-1">{{ low }}</span> {{ seeds[low].name }}</span>
+                    </div>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const selA = document.getElementById('team-a-select');
+    const selB = document.getElementById('team-b-select');
+    const btn = document.getElementById('compare-btn');
+
+    function updateBtn() {
+        btn.disabled = !(selA.value && selB.value && selA.value !== selB.value);
+    }
+    selA.addEventListener('change', updateBtn);
+    selB.addEventListener('change', updateBtn);
+
+    btn.addEventListener('click', () => {
+        if (selA.value && selB.value) {
+            window.location.href = `/matchup/${encodeURIComponent(selA.value)}/${encodeURIComponent(selB.value)}`;
+        }
+    });
+</script>
+{% endblock %}

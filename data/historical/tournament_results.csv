@@ -1,0 +1,207 @@
+year,round,region,seed_a,team_a,score_a,seed_b,team_b,score_b
+1985,Round of 64,East,1,Georgetown,68,16,Lehigh,43
+1985,Round of 64,East,8,Temple,60,9,Virginia Tech,57
+1985,Round of 64,East,5,Loyola-Chicago,59,12,Iona,58
+1985,Round of 64,East,4,SMU,85,13,Old Dominion,68
+1985,Round of 64,East,6,Georgia Tech,65,11,Mercer,60
+1985,Round of 64,East,3,Georgia,67,14,Wichita State,59
+1985,Round of 64,East,7,Brigham Young,64,10,Louisiana Tech,57
+1985,Round of 64,East,2,Illinois,76,15,Northeastern,57
+1986,Round of 64,East,1,Duke,85,16,Miss Valley St,78
+1986,Round of 64,East,8,Oklahoma,80,9,Northeastern,74
+1986,Round of 64,East,5,Virginia Tech,71,12,Villanova,66
+1986,Round of 64,East,4,LSU,94,13,Purdue,87
+1986,Round of 64,West,1,St. John's,83,16,Montana St,74
+1986,Round of 64,West,8,Auburn,73,9,Arizona,63
+1987,Round of 64,East,1,North Carolina,113,16,Pennsylvania,82
+1987,Round of 64,East,8,Michigan,97,9,Navy,82
+1987,Round of 64,East,5,Notre Dame,84,12,Middle Tenn,71
+1987,Round of 64,East,4,Purdue,104,13,Northeastern,95
+1987,Round of 64,West,1,UNLV,95,16,Idaho State,70
+1987,Round of 64,West,8,Missouri,65,9,Xavier,60
+1988,Round of 64,East,1,Temple,87,16,Lehigh,73
+1988,Round of 64,East,8,Georgetown,66,9,LSU,63
+1988,Round of 64,East,5,Rhode Island,87,12,Missouri,80
+1988,Round of 64,West,1,Purdue,94,16,Fairleigh Dickinson,79
+1988,Round of 64,West,8,DePaul,83,9,Wichita State,62
+1989,Round of 64,East,1,Georgetown,50,16,Princeton,49
+1989,Round of 64,East,8,Vanderbilt,80,9,Notre Dame,74
+1989,Round of 64,East,5,NC State,81,12,South Carolina,66
+1989,Round of 64,West,1,Arizona,94,16,Robert Morris,60
+1989,Round of 64,West,3,Syracuse,104,14,Bucknell,81
+1990,Round of 64,East,1,Connecticut,76,16,Boston University,52
+1990,Round of 64,East,8,Indiana,63,9,California,65
+1990,Round of 64,East,5,Clemson,49,12,Brigham Young,47
+1990,Round of 64,West,1,UNLV,102,16,Arkansas-Little Rock,72
+1990,Round of 64,West,8,Oregon State,70,9,Ball State,67
+1991,Round of 64,East,1,North Carolina,101,16,NE Louisiana,66
+1991,Round of 64,East,8,Princeton,50,9,Villanova,48
+1991,Round of 64,East,5,Mississippi State,56,12,Eastern Michigan,55
+1991,Round of 64,West,1,UNLV,99,16,Montana,65
+1991,Round of 64,West,2,Georgetown,70,15,Vanderbilt,60
+1992,Round of 64,East,1,Duke,82,16,Campbell,56
+1992,Round of 64,East,8,Iowa,98,9,Texas,92
+1992,Round of 64,East,5,Missouri,89,12,West Virginia,78
+1992,Round of 64,West,1,Kansas,100,16,Howard,67
+1992,Round of 64,West,6,Michigan State,61,11,Southwest Missouri State,54
+1993,Round of 64,East,1,North Carolina,85,16,East Carolina,65
+1993,Round of 64,East,8,Arkansas,94,9,Holy Cross,64
+1993,Round of 64,East,5,Cincinnati,93,12,Coppin State,60
+1993,Round of 64,West,1,Michigan,84,16,Coastal Carolina,53
+1993,Round of 64,West,2,Arizona,82,15,Santa Clara,73
+1994,Round of 64,East,1,North Carolina,71,16,Liberty,51
+1994,Round of 64,East,8,Indiana,67,9,Ohio,52
+1994,Round of 64,East,3,Temple,61,14,Drexel,39
+1994,Round of 64,West,1,Missouri,76,16,Navy,54
+1994,Round of 64,West,5,Syracuse,92,12,Hawaii,78
+1995,Round of 64,East,1,Wake Forest,62,16,North Carolina A&T,46
+1995,Round of 64,East,8,Minnesota,74,9,Saint Louis,54
+1995,Round of 64,East,5,Alabama,72,12,Pennsylvania,61
+1995,Round of 64,West,1,UCLA,68,16,Florida International,51
+1995,Round of 64,West,14,Old Dominion,89,3,Villanova,81
+1996,Round of 64,East,1,UMass,79,16,Central Florida,65
+1996,Round of 64,East,8,Bradley,44,9,Stanford,58
+1996,Round of 64,East,5,Marquette,68,12,Monmouth,48
+1996,Round of 64,West,1,Kentucky,110,16,San Jose State,72
+1996,Round of 64,West,8,Virginia Tech,61,9,Iowa State,74
+1997,Round of 64,East,1,Kansas,78,16,Jackson State,64
+1997,Round of 64,East,8,Arizona,65,9,South Alabama,57
+1997,Round of 64,East,5,Duke,71,12,Murray State,68
+1997,Round of 64,West,1,Kentucky,75,16,Montana,41
+1997,Round of 64,West,2,Minnesota,78,15,SW Texas State,46
+1998,Round of 64,East,1,North Carolina,88,16,Navy,52
+1998,Round of 64,East,8,Charlotte,70,9,Illinois,64
+1998,Round of 64,East,5,Michigan State,63,12,Eastern Michigan,55
+1998,Round of 64,West,1,Arizona,99,16,Nicholls State,60
+1998,Round of 64,West,14,Harvard,71,3,Oklahoma,64
+1999,Round of 64,East,1,Duke,99,16,Florida A&M,58
+1999,Round of 64,East,8,Temple,61,9,Kent State,54
+1999,Round of 64,East,5,Wisconsin,32,12,SW Missouri State,43
+1999,Round of 64,West,1,Connecticut,91,16,Texas-San Antonio,66
+1999,Round of 64,West,10,Gonzaga,75,7,Minnesota,63
+2000,Round of 64,East,1,Duke,82,16,Lamar,55
+2000,Round of 64,East,8,Kansas,81,9,DePaul,77
+2000,Round of 64,East,5,Florida,69,12,Butler,68
+2000,Round of 64,West,1,Arizona,71,16,Jackson State,47
+2000,Round of 64,West,8,Oklahoma,74,9,Winthrop,50
+2001,Round of 64,East,1,Duke,95,16,Monmouth,52
+2001,Round of 64,East,8,Georgia State,50,9,Wisconsin,49
+2001,Round of 64,East,5,UCLA,61,12,Hofstra,48
+2001,Round of 64,West,1,Stanford,89,16,North Carolina A&T,60
+2001,Round of 64,West,2,North Carolina,69,15,Princeton,57
+2002,Round of 64,East,1,Maryland,85,16,Siena,70
+2002,Round of 64,East,8,Wisconsin,80,9,St. John's,70
+2002,Round of 64,East,5,Marquette,69,12,Missouri,58
+2002,Round of 64,West,1,Kansas,70,16,Holy Cross,59
+2002,Round of 64,West,3,Oregon,81,14,Montana,62
+2003,Round of 64,East,1,Oklahoma,72,16,South Carolina State,68
+2003,Round of 64,East,8,BYU,54,9,Connecticut,58
+2003,Round of 64,East,5,Notre Dame,68,12,Wisconsin-Milwaukee,60
+2003,Round of 64,West,1,Texas,82,16,North Carolina-Asheville,61
+2003,Round of 64,West,12,Butler,47,5,Mississippi State,46
+2004,Round of 64,East,1,St. Joseph's,82,16,Liberty,63
+2004,Round of 64,East,8,Auburn,72,9,Memphis,55
+2004,Round of 64,East,5,Syracuse,80,12,Brigham Young,75
+2004,Round of 64,West,1,Kentucky,96,16,Florida A&M,76
+2004,Round of 64,West,5,Pacific,66,12,Providence,58
+2005,Round of 64,East,1,Washington,88,16,Montana,77
+2005,Round of 64,East,8,George Mason,75,9,Michigan State,65
+2005,Round of 64,East,5,Georgia Tech,80,12,George Washington,68
+2005,Round of 64,West,1,Illinois,67,16,Fairleigh Dickinson,55
+2005,Round of 64,West,14,Bucknell,64,3,Kansas,63
+2006,Round of 64,East,1,Duke,70,16,Southern,54
+2006,Round of 64,East,8,George Washington,88,9,UNC-Wilmington,85
+2006,Round of 64,East,5,Syracuse,58,12,Texas A&M,66
+2006,Round of 64,West,1,Memphis,94,16,Oral Roberts,78
+2006,Round of 64,West,11,George Mason,75,6,Michigan State,65
+2007,Round of 64,East,1,North Carolina,86,16,Eastern Kentucky,65
+2007,Round of 64,East,8,Marquette,49,9,Michigan State,61
+2007,Round of 64,East,5,USC,77,12,Arkansas,60
+2007,Round of 64,West,1,Kansas,107,16,Florida A&M,78
+2007,Round of 64,West,2,Georgetown,66,15,Belmont,55
+2008,Round of 64,East,1,North Carolina,113,16,Mount St. Mary's,74
+2008,Round of 64,East,8,Indiana,72,9,Arkansas,71
+2008,Round of 64,East,5,Notre Dame,68,12,George Mason,50
+2008,Round of 64,West,1,UCLA,70,16,Mississippi Valley State,29
+2008,Round of 64,West,10,Davidson,82,7,Gonzaga,76
+2009,Round of 64,East,1,Pittsburgh,72,16,East Tennessee State,55
+2009,Round of 64,East,8,Oklahoma State,77,9,Tennessee,75
+2009,Round of 64,East,5,Florida State,60,12,Wisconsin,61
+2009,Round of 64,West,1,Connecticut,103,16,Chattanooga,47
+2009,Round of 64,West,12,Arizona,84,5,Utah,71
+2010,Round of 64,East,1,Kentucky,100,16,East Tennessee State,71
+2010,Round of 64,East,8,Texas,71,9,Wake Forest,56
+2010,Round of 64,East,5,Temple,66,12,Cornell,78
+2010,Round of 64,West,1,Syracuse,79,16,Vermont,56
+2010,Round of 64,West,5,Michigan State,70,12,New Mexico State,67
+2011,Round of 64,East,1,Ohio State,75,16,Texas-San Antonio,46
+2011,Round of 64,East,8,George Mason,63,9,Villanova,61
+2011,Round of 64,East,5,West Virginia,74,12,Clemson,73
+2011,Round of 64,West,1,Duke,87,16,Hampton,45
+2011,Round of 64,West,8,Butler,60,9,Old Dominion,58
+2012,Round of 64,East,1,Syracuse,72,16,UNC Asheville,65
+2012,Round of 64,East,8,Kansas State,58,9,Southern Miss,57
+2012,Round of 64,East,5,Vanderbilt,79,12,Harvard,70
+2012,Round of 64,West,1,Michigan State,89,16,LIU,67
+2012,Round of 64,West,2,Missouri,78,15,Norfolk State,86
+2013,Round of 64,East,1,Indiana,83,16,James Madison,62
+2013,Round of 64,East,8,NC State,66,9,Temple,59
+2013,Round of 64,East,5,Oklahoma State,55,12,Oregon,68
+2013,Round of 64,West,1,Gonzaga,64,16,Southern,58
+2013,Round of 64,West,9,Wichita State,73,8,Pittsburgh,55
+2014,Round of 64,East,1,Virginia,70,16,Coastal Carolina,59
+2014,Round of 64,East,8,Memphis,71,9,George Washington,66
+2014,Round of 64,East,5,Cincinnati,61,12,Harvard,57
+2014,Round of 64,West,1,Arizona,68,16,Weber State,59
+2014,Round of 64,West,3,Creighton,62,14,Louisiana-Lafayette,76
+2015,Round of 64,East,1,Villanova,93,16,Lafayette,52
+2015,Round of 64,East,8,NC State,75,9,LSU,60
+2015,Round of 64,East,5,Northern Iowa,51,12,Wyoming,56
+2015,Round of 64,West,1,Wisconsin,86,16,Coastal Carolina,72
+2015,Round of 64,West,5,Arkansas,56,12,Wofford,53
+2016,Round of 64,East,1,North Carolina,83,16,FGCU,67
+2016,Round of 64,East,8,USC,74,9,Providence,59
+2016,Round of 64,East,5,Indiana,99,12,Chattanooga,77
+2016,Round of 64,West,1,Oregon,91,16,Holy Cross,52
+2016,Round of 64,West,2,Oklahoma,82,15,Cal State Bakersfield,68
+2017,Round of 64,East,1,Villanova,76,16,Mount St. Mary's,56
+2017,Round of 64,East,8,Wisconsin,84,9,Virginia Tech,74
+2017,Round of 64,East,5,Virginia,76,12,UNC-Wilmington,71
+2017,Round of 64,West,1,Gonzaga,66,16,South Dakota State,46
+2017,Round of 64,West,11,Xavier,76,6,Maryland,65
+2018,Round of 64,East,1,Villanova,87,16,Radford,61
+2018,Round of 64,East,8,Virginia Tech,83,9,Alabama,86
+2018,Round of 64,East,5,West Virginia,85,12,Murray State,68
+2018,Round of 64,South,1,Virginia,54,16,UMBC,74
+2018,Round of 64,West,1,Xavier,102,16,Texas Southern,83
+2018,Round of 64,West,13,Marshall,81,4,Wichita State,75
+2019,Round of 64,East,1,Duke,85,16,North Dakota State,62
+2019,Round of 64,East,8,VCU,58,9,UCF,73
+2019,Round of 64,East,5,Mississippi State,76,12,Liberty,80
+2019,Round of 64,West,1,Gonzaga,87,16,Fairleigh Dickinson,49
+2019,Round of 64,West,12,Oregon,72,5,Wisconsin,54
+2021,Round of 64,East,1,Michigan,82,16,Texas Southern,66
+2021,Round of 64,East,8,LSU,76,9,St. Bonaventure,61
+2021,Round of 64,East,5,Colorado,96,12,Georgetown,73
+2021,Round of 64,West,1,Gonzaga,98,16,Norfolk State,55
+2021,Round of 64,West,14,Abilene Christian,53,3,Texas,52
+2022,Round of 64,East,1,Baylor,85,16,Norfolk State,49
+2022,Round of 64,East,8,North Carolina,95,9,Marquette,63
+2022,Round of 64,East,5,Saint Mary's,82,12,Indiana,53
+2022,Round of 64,West,1,Gonzaga,93,16,Georgia State,72
+2022,Round of 64,West,15,Saint Peter's,85,2,Kentucky,79
+2023,Round of 64,East,1,Purdue,83,16,Fairleigh Dickinson,84
+2023,Round of 64,East,8,Memphis,76,9,Florida Atlantic,66
+2023,Round of 64,East,5,Duke,74,12,Oral Roberts,51
+2023,Round of 64,West,1,Kansas,96,16,Howard,68
+2023,Round of 64,West,2,Marquette,78,15,Vermont,61
+2024,Round of 64,East,1,North Carolina,90,16,Wagner,62
+2024,Round of 64,East,8,Mississippi State,68,9,Michigan State,69
+2024,Round of 64,East,5,Saint Mary's,54,12,Grand Canyon,78
+2024,Round of 64,West,1,Houston,86,16,Longwood,46
+2024,Round of 64,West,5,BYU,54,12,Duquesne,71
+2025,Round of 64,East,1,Duke,74,16,American,47
+2025,Round of 64,East,8,Memphis,78,9,Colorado State,69
+2025,Round of 64,East,5,Michigan,71,12,UC San Diego,60
+2025,Round of 64,West,1,Florida,87,16,Norfolk State,56
+2025,Round of 64,West,2,St. John's,79,15,Omaha,61

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ year }} Bracket - March Madness Predictor{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold mb-1">{{ year }} NCAA Tournament Bracket</h1>
+    <p class="text-gray-400">Click any team to view their full profile and analytics</p>
+</div>
+
+{% if first_four %}
+<div class="glass rounded-xl overflow-hidden mb-6">
+    <div class="region-header px-4 py-3">
+        <h2 class="text-lg font-bold text-white">First Four</h2>
+    </div>
+    <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        {% for game in first_four %}
+            <div class="matchup-card glass rounded-lg p-3 flex flex-col gap-1">
+                <div class="text-xs text-gray-400 mb-1">{{ game.region }} &middot; {{ game.seed }}-seed</div>
+                <div class="flex items-center">
+                    <span class="seed-badge bg-ncaa-blue text-white text-xs font-bold px-2 py-0.5 rounded">{{ game.seed }}</span>
+                    <a href="/team/{{ game.team_a }}" class="ml-2 font-medium hover:text-ncaa-orange transition">{{ game.team_a }}</a>
+                </div>
+                <div class="border-t border-gray-700/30 my-0.5"></div>
+                <div class="flex items-center">
+                    <span class="seed-badge bg-gray-700 text-white text-xs font-bold px-2 py-0.5 rounded">{{ game.seed }}</span>
+                    <a href="/team/{{ game.team_b }}" class="ml-2 font-medium hover:text-ncaa-orange transition">{{ game.team_b }}</a>
+                </div>
+                <a href="/matchup/{{ game.team_a }}/{{ game.team_b }}" class="mt-1 text-center text-xs text-gray-500 hover:text-ncaa-orange transition">View Matchup &rarr;</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {% for region, entries in bracket.items() %}
+    <div class="glass rounded-xl overflow-hidden">
+        <div class="region-header px-4 py-3">
+            <h2 class="text-lg font-bold text-white">{{ region }} Region</h2>
+        </div>
+        {% set seed_order = [(1,16),(8,9),(5,12),(4,13),(6,11),(3,14),(7,10),(2,15)] %}
+        {% set by_seed = {} %}
+        {% for e in entries %}{% if by_seed.update({e.seed: e}) %}{% endif %}{% endfor %}
+        <div class="p-4 space-y-2">
+            {% for high, low in seed_order %}
+            {% set a = by_seed[high] %}
+            {% set b = by_seed[low] %}
+            {% if a and b %}
+            <div class="matchup-card glass rounded-lg p-3 flex flex-col gap-1">
+                <div class="flex items-center">
+                    <span class="seed-badge bg-ncaa-blue text-white text-xs font-bold px-2 py-0.5 rounded">{{ a.seed }}</span>
+                    <a href="/team/{{ a.team }}" class="ml-2 font-medium hover:text-ncaa-orange transition">{{ a.team }}</a>
+                    {% if a.play_in %}
+                    <span class="ml-auto text-xs text-yellow-400">First Four winner</span>
+                    {% endif %}
+                </div>
+                <div class="border-t border-gray-700/30 my-0.5"></div>
+                <div class="flex items-center">
+                    <span class="seed-badge bg-gray-700 text-white text-xs font-bold px-2 py-0.5 rounded">{{ b.seed }}</span>
+                    <a href="/team/{{ b.team }}" class="ml-2 font-medium hover:text-ncaa-orange transition">{{ b.team }}</a>
+                    {% if b.play_in %}
+                    <span class="ml-auto text-xs text-yellow-400">First Four winner</span>
+                    {% endif %}
+                </div>
+                <a href="/matchup/{{ a.team }}/{{ b.team }}" class="mt-1 text-center text-xs text-gray-500 hover:text-ncaa-orange transition">View Matchup &rarr;</a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

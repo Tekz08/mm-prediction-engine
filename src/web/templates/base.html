@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}March Madness Predictor{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'ncaa-blue': '#003087',
+                        'ncaa-orange': '#FF6B00',
+                        'court': '#C8702A',
+                        'court-dark': '#1a1a2e',
+                        'panel': '#16213e',
+                        'panel-light': '#1a2744',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); min-height: 100vh; }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .seed-badge { min-width: 28px; text-align: center; }
+        .matchup-card:hover { transform: translateY(-2px); transition: transform 0.2s; }
+        .region-header { background: linear-gradient(90deg, #003087, #1a4db5); }
+    </style>
+</head>
+<body class="text-gray-200">
+    <nav class="glass border-b border-gray-700/50 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="/" class="text-xl font-bold tracking-tight">
+                <span class="text-ncaa-orange">March Madness</span>
+                <span class="text-white"> Predictor</span>
+            </a>
+            <div class="flex gap-6 text-sm font-medium">
+                <a href="/" class="hover:text-ncaa-orange transition">Bracket</a>
+                <a href="/matchup" class="hover:text-ncaa-orange transition">Matchup</a>
+                <a href="/results" class="hover:text-ncaa-orange transition">Simulate</a>
+                <a href="/advisor" class="hover:text-ncaa-orange transition">Advisor</a>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

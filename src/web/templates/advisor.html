@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+{% block title %}Bracket Advisor - March Madness Predictor{% endblock %}
+{% block content %}
+<style>
+    .conf-lock { color: #22c55e; font-weight: 700; }
+    .conf-strong { color: #06b6d4; font-weight: 600; }
+    .conf-lean { color: #eab308; font-weight: 500; }
+    .conf-tossup { color: #ef4444; font-weight: 500; }
+    .upset-badge { background: #ef4444; color: white; font-size: 0.6rem; padding: 1px 5px; border-radius: 9999px; font-weight: 700; }
+
+    main { max-width: 100% !important; }
+
+    .bracket-wrapper { padding: 10px 0; }
+    .bracket-full { display: flex; align-items: stretch; width: 100%; gap: 0; }
+    .bracket-side { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .bracket-center { display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 0 0 auto; min-width: 160px; max-width: 190px; gap: 8px; padding: 0 4px; }
+
+    .region-bracket { display: flex; flex-direction: row; flex: 1; min-width: 0; }
+
+    .region-label {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #6b798c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        min-width: 20px;
+    }
+    .region-bracket.mirrored .region-label {
+        transform: rotate(0deg);
+    }
+
+    .round-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        flex: 1;
+        min-width: 0;
+        padding: 2px 0;
+    }
+
+    .game-slot {
+        position: relative;
+        margin: 2px 0;
+        border-radius: 4px;
+        overflow: visible;
+        font-size: 11px;
+        min-height: 42px;
+        cursor: pointer;
+    }
+    .game-slot:hover .game-team { border-color: #4a6a8a; }
+    .game-slot:hover .game-team.winner { background: #2a3a4a; }
+    a.game-link { text-decoration: none; color: inherit; display: block; }
+    .ff-mini:hover { background: rgba(255,255,255,0.08) !important; }
+    .ff-slot:hover, .champ-slot:hover { border-color: #4a6a8a !important; background: rgba(255,255,255,0.04); }
+
+    .game-slot { position: relative; }
+    .game-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1f2e;
+        border: 1px solid #36404e;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 10px;
+        white-space: nowrap;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        pointer-events: none;
+    }
+    .game-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: #36404e;
+    }
+    .game-slot:hover .game-tooltip { display: block; }
+    .tooltip-row { display: flex; justify-content: space-between; gap: 12px; line-height: 1.6; }
+    .tooltip-row .t-name { color: #9ca3af; }
+    .tooltip-row .t-pct { font-weight: 700; }
+    .tooltip-row.t-winner .t-name { color: #e3e8ef; }
+    .tooltip-row.t-winner .t-pct { color: #22c55e; }
+    .game-team {
+        display: flex;
+        align-items: center;
+        padding: 2px 6px;
+        background: #182026;
+        border: 1px solid #232c36;
+        height: 21px;
+        gap: 4px;
+        transition: background 0.15s;
+        position: relative;
+    }
+    .game-team:first-child { border-radius: 3px 3px 0 0; border-bottom: none; }
+    .game-team:last-child { border-radius: 0 0 3px 3px; }
+    .game-team.winner {
+        background: #232c36;
+        color: #e3e8ef;
+        border-color: #36404e;
+        z-index: 1;
+    }
+    .game-team.loser { color: #4a5568; }
+    .game-team .seed { font-size: 10px; color: #6b798c; min-width: 14px; text-align: right; }
+    .game-team.winner .seed { color: #9ca3af; }
+    .game-team .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .game-team .conf-badge { font-size: 8px; font-weight: 700; padding: 0 3px; border-radius: 2px; line-height: 14px; }
+    .game-team.winner .conf-badge.badge-lock { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .game-team.winner .conf-badge.badge-strong { background: rgba(6,182,212,0.2); color: #06b6d4; }
+    .game-team.winner .conf-badge.badge-lean { background: rgba(234,179,8,0.2); color: #eab308; }
+    .game-team.winner .conf-badge.badge-tossup { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+    .connector-right { position: absolute; right: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
+    .connector-vert-right {
+        position: absolute;
+        right: -12px;
+        width: 1px;
+        background: #36404e;
+        z-index: 2;
+    }
+    .connector-left { position: absolute; left: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
+    .connector-vert-left {
+        position: absolute;
+        left: -12px;
+        width: 1px;
+        background: #36404e;
+        z-index: 2;
+    }
+    .connector-in-right { position: absolute; left: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
+    .connector-in-left { position: absolute; right: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
+
+    .round-col { padding: 2px 6px; }
+
+    .champ-slot {
+        background: linear-gradient(135deg, #003087, #1a4db5);
+        border: 2px solid #fbbf24;
+        border-radius: 6px;
+        padding: 8px 12px;
+        text-align: center;
+    }
+    .champ-slot .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; }
+    .champ-slot .team { font-size: 14px; font-weight: 700; color: #fbbf24; }
+    .champ-slot .detail { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+    .ff-slot {
+        background: #1a2744;
+        border: 1px solid #36404e;
+        border-radius: 4px;
+        padding: 4px 8px;
+        text-align: center;
+        font-size: 11px;
+    }
+    .ff-slot .team { font-weight: 600; }
+    .ff-slot .vs { color: #4a5568; font-size: 9px; }
+
+    .first-four-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ff-mini { font-size: 10px; padding: 3px 8px; background: #182026; border: 1px solid #232c36; border-radius: 3px; }
+    .ff-mini .winner-name { font-weight: 600; color: #e3e8ef; }
+    .ff-mini .loser-name { color: #4a5568; }
+
+    .view-toggle { display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid #36404e; }
+    .view-toggle button { padding: 4px 14px; font-size: 12px; background: transparent; color: #6b798c; border: none; cursor: pointer; transition: all 0.15s; }
+    .view-toggle button.active { background: #003087; color: white; }
+
+    @media print {
+        nav, .no-print { display: none !important; }
+        body { background: white !important; color: black !important; }
+        .glass { background: white !important; border: 1px solid #ccc !important; }
+        .text-gray-200, .text-gray-400 { color: black !important; }
+        .game-team { background: white !important; border-color: #999 !important; color: black !important; }
+        .game-team.winner { background: #e8e8e8 !important; }
+        .game-team.loser { color: #999 !important; }
+        .game-team .seed { color: #666 !important; }
+        .connector-right, .connector-left, .connector-vert-right, .connector-vert-left,
+        .connector-in-right, .connector-in-left { background: #999 !important; }
+        .champ-slot { background: white !important; border-color: #333 !important; }
+        .champ-slot .team { color: #333 !important; }
+        .bracket-wrapper { overflow: visible !important; }
+    }
+</style>
+
+<div class="mb-4">
+    <h1 class="text-3xl font-bold mb-2">Bracket Advisor</h1>
+    <p class="text-gray-400">AI-powered bracket recommendations with confidence levels and strategic upset picks.</p>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6 no-print">
+    <div class="flex items-end gap-4 flex-wrap">
+        <div>
+            <label class="block text-sm text-gray-400 mb-1">Iterations</label>
+            <input type="number" id="iterations" value="10000" min="100" max="50000" step="1000"
+                   class="bg-gray-800 border border-gray-600 rounded px-3 py-2 w-36 text-white">
+        </div>
+        <button onclick="runAdvisor()" id="runBtn"
+                class="bg-ncaa-orange hover:bg-orange-600 text-white font-bold px-6 py-2 rounded transition">
+            Generate Bracket
+        </button>
+    </div>
+    <div id="progressContainer" class="mt-4 hidden">
+        <div class="w-full bg-gray-700 rounded-full h-3">
+            <div id="progressBar" class="bg-ncaa-orange h-3 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+        <p id="progressText" class="text-sm text-gray-400 mt-1">Simulating...</p>
+    </div>
+</div>
+
+<div id="results" class="hidden">
+    <div id="summaryPanel" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"></div>
+    <div id="upsetsPanel" class="mb-4"></div>
+    <div class="flex items-center gap-3 mb-3 no-print">
+        <div class="view-toggle">
+            <button id="btnBracket" class="active" onclick="switchView('bracket')">Bracket</button>
+            <button id="btnTable" onclick="switchView('table')">Table</button>
+        </div>
+        <span class="text-xs text-gray-500">Hover games for reasoning</span>
+    </div>
+    <div id="bracketView"></div>
+    <div id="tableView" class="hidden"></div>
+</div>
+
+<script>
+const REGION_ORDER_LEFT = ['East', 'West'];
+const REGION_ORDER_RIGHT = ['Midwest', 'South'];
+const ROUND_NAMES = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8'];
+
+function confClass(c) { return {'Lock':'conf-lock','Strong':'conf-strong','Lean':'conf-lean','Toss-up':'conf-tossup'}[c]||''; }
+function badgeClass(c) { return {'Lock':'badge-lock','Strong':'badge-strong','Lean':'badge-lean','Toss-up':'badge-tossup'}[c]||''; }
+
+function switchView(v) {
+    document.getElementById('bracketView').classList.toggle('hidden', v!=='bracket');
+    document.getElementById('tableView').classList.toggle('hidden', v!=='table');
+    document.getElementById('btnBracket').classList.toggle('active', v==='bracket');
+    document.getElementById('btnTable').classList.toggle('active', v==='table');
+}
+
+function runAdvisor() {
+    const iterations = document.getElementById('iterations').value;
+    const btn = document.getElementById('runBtn');
+    const prog = document.getElementById('progressContainer');
+    const bar = document.getElementById('progressBar');
+    const text = document.getElementById('progressText');
+    btn.disabled = true; btn.textContent = 'Generating...';
+    prog.classList.remove('hidden'); bar.style.width = '0%';
+    document.getElementById('results').classList.add('hidden');
+
+    const es = new EventSource(`/api/advisor-stream?iterations=${iterations}`);
+    es.onmessage = function(e) {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'progress') {
+            const pct = (msg.current / msg.total * 100).toFixed(1);
+            bar.style.width = pct + '%';
+            text.textContent = `Simulating... ${msg.current.toLocaleString()} / ${msg.total.toLocaleString()}`;
+        } else if (msg.type === 'result') {
+            es.close(); bar.style.width = '100%'; text.textContent = 'Complete!';
+            btn.disabled = false; btn.textContent = 'Generate Bracket';
+            renderAll(msg.data);
+        }
+    };
+    es.onerror = function() { es.close(); btn.disabled = false; btn.textContent = 'Generate Bracket'; text.textContent = 'Error.'; };
+}
+
+function renderAll(data) {
+    document.getElementById('results').classList.remove('hidden');
+    renderSummary(data);
+    renderUpsets(data);
+    renderBracketViz(data);
+    renderTableView(data);
+}
+
+function renderSummary(data) {
+    const sp = document.getElementById('summaryPanel');
+    const c = data.champion, ff = data.final_four;
+    sp.innerHTML = `
+        <div class="glass rounded-xl p-5">
+            <h3 class="text-sm text-gray-400 uppercase tracking-wide mb-2">Predicted Champion</h3>
+            <p class="text-2xl font-bold text-yellow-400">${c.team}</p>
+            <p class="text-sm mt-1"><span class="${confClass(c.confidence)}">${c.confidence}</span></p>
+            <p class="text-xs text-gray-400 mt-2">${c.reasoning}</p>
+        </div>
+        <div class="glass rounded-xl p-5">
+            <h3 class="text-sm text-gray-400 uppercase tracking-wide mb-2">Final Four</h3>
+            <div class="space-y-1">${ff.map(t=>`<p class="font-semibold">${t}</p>`).join('')}</div>
+        </div>
+        <div class="glass rounded-xl p-5">
+            <h3 class="text-sm text-gray-400 uppercase tracking-wide mb-2">Bracket Stats</h3>
+            <p class="text-lg">${data.total_picks} picks</p>
+            <p class="text-lg text-red-400">${data.total_upsets} upsets</p>
+            <p class="text-lg text-cyan-400">${data.smart_upsets.length} smart upset picks</p>
+        </div>`;
+}
+
+function renderUpsets(data) {
+    const up = document.getElementById('upsetsPanel');
+    if (!data.smart_upsets.length) { up.innerHTML = ''; return; }
+    let h = '<div class="glass rounded-xl p-5"><h3 class="text-lg font-bold mb-3 text-red-400">Smart Upset Picks</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">';
+    data.smart_upsets.forEach(u => {
+        const url = matchupURL(u.pick, u.over);
+        h += `<a href="${url}" class="game-link"><div class="bg-gray-800/50 rounded-lg p-3 border border-red-900/30 hover:border-red-700/60 transition-colors cursor-pointer">
+            <div class="flex items-center gap-2 mb-1"><span class="upset-badge">UPSET</span>
+            <span class="font-bold">(${u.seed}) ${u.pick}</span><span class="text-gray-500">over</span><span>${u.over}</span></div>
+            <p class="text-xs text-gray-400">${u.round} | <span class="${confClass(u.confidence)}">${u.confidence}</span> | ${u.win_rate}%</p>
+            <p class="text-xs text-gray-500 mt-1">${u.reasoning}</p></div></a>`;
+    });
+    h += '</div></div>';
+    up.innerHTML = h;
+}
+
+function getRegionGames(data, region) {
+    const result = {};
+    ROUND_NAMES.forEach(r => { result[r] = []; });
+    for (const [rname, games] of Object.entries(data.rounds)) {
+        if (ROUND_NAMES.includes(rname)) {
+            games.filter(g => g.region === region).forEach(g => result[rname].push(g));
+        }
+    }
+    return result;
+}
+
+function matchupURL(teamA, teamB) {
+    return `/matchup/${encodeURIComponent(teamA)}/${encodeURIComponent(teamB)}`;
+}
+
+function probTooltip(g) {
+    const aIsWinner = g.pick === g.team_a;
+    const pctA = g.win_rate;
+    const pctB = (100 - g.win_rate).toFixed(1);
+    const winPct = aIsWinner ? pctA : pctB;
+    const losePct = aIsWinner ? pctB : pctA;
+    return `<div class="game-tooltip">
+        <div class="tooltip-row t-winner"><span class="t-name">(${aIsWinner ? g.seed_a : g.seed_b}) ${g.pick}</span><span class="t-pct">${winPct}%</span></div>
+        <div class="tooltip-row"><span class="t-name">(${aIsWinner ? g.seed_b : g.seed_a}) ${aIsWinner ? g.team_b : g.team_a}</span><span class="t-pct">${losePct}%</span></div>
+    </div>`;
+}
+
+function gameSlotHTML(g, dir) {
+    const aIsWinner = g.pick === g.team_a;
+    const bIsWinner = g.pick === g.team_b;
+    const badge = badgeClass(g.confidence);
+    const upsetMark = g.is_upset ? ' <span class="upset-badge">!</span>' : '';
+    const url = matchupURL(g.team_a, g.team_b);
+    return `<a class="game-link" href="${url}"><div class="game-slot">
+        ${probTooltip(g)}
+        <div class="game-team ${aIsWinner ? 'winner' : 'loser'}">
+            <span class="seed">${g.seed_a}</span>
+            <span class="name">${g.team_a}</span>
+            ${aIsWinner ? `<span class="conf-badge ${badge}">${g.confidence.substring(0,1)}</span>${upsetMark}` : ''}
+        </div>
+        <div class="game-team ${bIsWinner ? 'winner' : 'loser'}">
+            <span class="seed">${g.seed_b}</span>
+            <span class="name">${g.team_b}</span>
+            ${bIsWinner ? `<span class="conf-badge ${badge}">${g.confidence.substring(0,1)}</span>${upsetMark}` : ''}
+        </div>
+    </div></a>`;
+}
+
+function buildRegionHTML(data, region, mirrored) {
+    const games = getRegionGames(data, region);
+    const dir = mirrored ? 'left' : 'right';
+    const rounds = mirrored ? [...ROUND_NAMES].reverse() : ROUND_NAMES;
+
+    let html = `<div class="region-bracket ${mirrored ? 'mirrored' : ''}">`;
+    if (!mirrored) html += `<div class="region-label">${region}</div>`;
+
+    rounds.forEach(rname => {
+        const rGames = games[rname] || [];
+        html += `<div class="round-col">`;
+        rGames.forEach(g => { html += gameSlotHTML(g, dir); });
+        html += `</div>`;
+    });
+
+    if (mirrored) html += `<div class="region-label">${region}</div>`;
+    html += `</div>`;
+    return html;
+}
+
+function renderBracketViz(data) {
+    const bv = document.getElementById('bracketView');
+    let html = '';
+
+    const ffGames = data.rounds['First Four'] || [];
+    if (ffGames.length > 0) {
+        html += `<div class="first-four-bar"><span style="font-size:10px;color:#6b798c;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-right:8px;">First Four</span>`;
+        ffGames.forEach(g => {
+            const aW = g.pick === g.team_a, bW = g.pick === g.team_b;
+            const url = matchupURL(g.team_a, g.team_b);
+            html += `<a href="${url}" class="game-link"><div class="ff-mini" title="${g.win_rate}% ${g.pick}">
+                <span class="${aW ? 'winner-name' : 'loser-name'}">(${g.seed_a}) ${g.team_a}</span>
+                <span style="color:#4a5568;margin:0 3px;">vs</span>
+                <span class="${bW ? 'winner-name' : 'loser-name'}">(${g.seed_b}) ${g.team_b}</span>
+            </div></a>`;
+        });
+        html += `</div>`;
+    }
+
+    html += `<div class="bracket-wrapper"><div class="bracket-full">`;
+
+    html += `<div class="bracket-side">`;
+    REGION_ORDER_LEFT.forEach(r => { html += buildRegionHTML(data, r, false); });
+    html += `</div>`;
+
+    const ffRound = data.rounds['Final Four'] || [];
+    const champRound = data.rounds['Championship'] || [];
+    html += `<div class="bracket-center">`;
+
+    if (ffRound.length >= 1) {
+        const g = ffRound[0];
+        const aW = g.pick === g.team_a;
+        const pA = aW ? g.win_rate : (100 - g.win_rate).toFixed(1);
+        const pB = aW ? (100 - g.win_rate).toFixed(1) : g.win_rate;
+        const url0 = matchupURL(g.team_a, g.team_b);
+        html += `<a href="${url0}" class="game-link"><div class="ff-slot" title="${g.reasoning||''}">
+            <div class="vs">FINAL FOUR</div>
+            <div class="team" style="color:${aW?'#e3e8ef':'#4a5568'}">(${g.seed_a}) ${g.team_a} <span style="font-size:9px;color:${aW?'#22c55e':'#6b798c'}">${pA}%</span></div>
+            <div class="vs">vs</div>
+            <div class="team" style="color:${!aW?'#e3e8ef':'#4a5568'}">(${g.seed_b}) ${g.team_b} <span style="font-size:9px;color:${!aW?'#22c55e':'#6b798c'}">${pB}%</span></div>
+            <div style="font-size:9px;margin-top:2px;"><span class="${confClass(g.confidence)}">${g.confidence}</span></div>
+        </div></a>`;
+    }
+
+    if (champRound.length >= 1) {
+        const g = champRound[0];
+        const champUrl = matchupURL(g.team_a, g.team_b);
+        html += `<a href="${champUrl}" class="game-link"><div class="champ-slot" title="${g.reasoning||''}">
+            <div class="label">National Champion</div>
+            <div class="team">(${g.pick_seed}) ${g.pick}</div>
+            <div class="detail"><span class="${confClass(g.confidence)}">${g.confidence}</span> | ${g.win_rate}%</div>
+        </div></a>`;
+    }
+
+    if (ffRound.length >= 2) {
+        const g = ffRound[1];
+        const aW = g.pick === g.team_a;
+        const pA2 = aW ? g.win_rate : (100 - g.win_rate).toFixed(1);
+        const pB2 = aW ? (100 - g.win_rate).toFixed(1) : g.win_rate;
+        const url1 = matchupURL(g.team_a, g.team_b);
+        html += `<a href="${url1}" class="game-link"><div class="ff-slot" title="${g.reasoning||''}">
+            <div class="vs">FINAL FOUR</div>
+            <div class="team" style="color:${aW?'#e3e8ef':'#4a5568'}">(${g.seed_a}) ${g.team_a} <span style="font-size:9px;color:${aW?'#22c55e':'#6b798c'}">${pA2}%</span></div>
+            <div class="vs">vs</div>
+            <div class="team" style="color:${!aW?'#e3e8ef':'#4a5568'}">(${g.seed_b}) ${g.team_b} <span style="font-size:9px;color:${!aW?'#22c55e':'#6b798c'}">${pB2}%</span></div>
+            <div style="font-size:9px;margin-top:2px;"><span class="${confClass(g.confidence)}">${g.confidence}</span></div>
+        </div></a>`;
+    }
+
+    html += `</div>`;
+
+    html += `<div class="bracket-side">`;
+    REGION_ORDER_RIGHT.forEach(r => { html += buildRegionHTML(data, r, true); });
+    html += `</div>`;
+
+    html += `</div></div>`;
+    bv.innerHTML = html;
+}
+
+function renderTableView(data) {
+    const rp = document.getElementById('tableView');
+    const roundOrder = ['First Four','Round of 64','Round of 32','Sweet 16','Elite 8','Final Four','Championship'];
+    let h = '';
+    roundOrder.forEach(rname => {
+        const games = data.rounds[rname];
+        if (!games || !games.length) return;
+        h += `<div class="glass rounded-xl p-5 mb-4"><h3 class="text-lg font-bold mb-3">${rname}</h3>
+            <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="text-gray-400 border-b border-gray-700">
+                <th class="text-left py-2 px-2">Matchup</th><th class="text-left py-2 px-2">Pick</th>
+                <th class="text-center py-2 px-2">Confidence</th><th class="text-right py-2 px-2">Win Rate</th>
+                <th class="text-center py-2 px-2"></th></tr></thead><tbody>`;
+        games.forEach(g => {
+            const url = matchupURL(g.team_a, g.team_b);
+            h += `<tr class="border-b border-gray-800 hover:bg-gray-800/30 cursor-pointer" title="${g.reasoning}" onclick="window.location='${url}'">
+                <td class="py-2 px-2">(${g.seed_a}) ${g.team_a} vs (${g.seed_b}) ${g.team_b}</td>
+                <td class="py-2 px-2 font-semibold">(${g.pick_seed}) ${g.pick}</td>
+                <td class="py-2 px-2 text-center"><span class="${confClass(g.confidence)}">${g.confidence}</span></td>
+                <td class="py-2 px-2 text-right">${g.win_rate.toFixed(0)}%</td>
+                <td class="py-2 px-2 text-center">${g.is_upset?'<span class="upset-badge">UPSET</span>':''}</td></tr>`;
+        });
+        h += '</tbody></table></div></div>';
+    });
+    rp.innerHTML = h;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}{{ team.name }} - March Madness Predictor{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <a href="/" class="text-sm text-gray-400 hover:text-ncaa-orange transition">&larr; Back to Bracket</a>
+</div>
+
+<div class="glass rounded-xl p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold">{{ team.name }}</h1>
+            <p class="text-gray-400 mt-1">{{ team.conference }} &middot; {{ team.region }} Region &middot; {{ team.stats.wins }}-{{ team.stats.losses }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-ncaa-orange">{{ team.seed }}</div>
+                <div class="text-xs text-gray-400 uppercase tracking-wider">Seed</div>
+            </div>
+            <div class="text-center ml-6">
+                <div class="text-4xl font-bold text-green-400">{{ profile.composite_score }}</div>
+                <div class="text-xs text-gray-400 uppercase tracking-wider">Rating</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if team.coach.name %}
+<div class="glass rounded-xl p-5 mb-6">
+    <h3 class="text-lg font-bold mb-3">Head Coach</h3>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+        <div>
+            <div class="text-xl font-bold text-white">{{ team.coach.name }}</div>
+            <div class="text-xs text-gray-400">Coach</div>
+        </div>
+        <div>
+            <div class="text-xl font-bold text-blue-400">{{ team.coach.career_wins }}-{{ team.coach.career_losses }}</div>
+            <div class="text-xs text-gray-400">Career Record</div>
+        </div>
+        <div>
+            <div class="text-xl font-bold text-ncaa-orange">{{ team.coach.tourney_appearances }}</div>
+            <div class="text-xs text-gray-400">Tourney Apps</div>
+        </div>
+        <div>
+            <div class="text-xl font-bold text-purple-400">{{ team.coach.final_fours }}</div>
+            <div class="text-xs text-gray-400">Final Fours</div>
+        </div>
+        <div>
+            <div class="text-xl font-bold text-yellow-400">{{ team.coach.championships }}</div>
+            <div class="text-xs text-gray-400">Championships</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="glass rounded-xl p-5 text-center">
+        <div class="text-3xl font-bold text-blue-400">{{ profile.offensive_score }}</div>
+        <div class="text-sm text-gray-400 mt-1">Offensive Score</div>
+        <div class="mt-2 bg-gray-700 rounded-full h-2">
+            <div class="bg-blue-400 rounded-full h-2" style="width: {{ profile.offensive_score }}%"></div>
+        </div>
+    </div>
+    <div class="glass rounded-xl p-5 text-center">
+        <div class="text-3xl font-bold text-red-400">{{ profile.defensive_score }}</div>
+        <div class="text-sm text-gray-400 mt-1">Defensive Score</div>
+        <div class="mt-2 bg-gray-700 rounded-full h-2">
+            <div class="bg-red-400 rounded-full h-2" style="width: {{ profile.defensive_score }}%"></div>
+        </div>
+    </div>
+    <div class="glass rounded-xl p-5 text-center">
+        <div class="text-3xl font-bold text-purple-400">{{ profile.intangible_score }}</div>
+        <div class="text-sm text-gray-400 mt-1">Intangible Score</div>
+        <div class="mt-2 bg-gray-700 rounded-full h-2">
+            <div class="bg-purple-400 rounded-full h-2" style="width: {{ profile.intangible_score }}%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="glass rounded-xl p-5">
+        <h3 class="text-lg font-bold mb-3 text-green-400">Strengths</h3>
+        {% if profile.strengths %}
+        <ul class="space-y-2">
+            {% for s in profile.strengths %}
+            <li class="flex items-center gap-2">
+                <span class="text-green-400">&#9650;</span>
+                <span>{{ s }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500">No standout strengths identified</p>
+        {% endif %}
+    </div>
+    <div class="glass rounded-xl p-5">
+        <h3 class="text-lg font-bold mb-3 text-red-400">Weaknesses</h3>
+        {% if profile.weaknesses %}
+        <ul class="space-y-2">
+            {% for w in profile.weaknesses %}
+            <li class="flex items-center gap-2">
+                <span class="text-red-400">&#9660;</span>
+                <span>{{ w }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500">No significant weaknesses identified</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="glass rounded-xl p-5">
+    <h3 class="text-lg font-bold mb-4">Key Metrics</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% set metrics = [
+            ("Adj. Off. Eff.", team.stats.adj_offensive_efficiency, ""),
+            ("Adj. Def. Eff.", team.stats.adj_defensive_efficiency, ""),
+            ("Net Efficiency", team.stats.net_efficiency, ""),
+            ("Tempo", team.stats.tempo, ""),
+            ("SOS", team.stats.strength_of_schedule, ""),
+            ("3PT %", team.stats.three_pt_pct, "%"),
+            ("FT %", team.stats.ft_pct, "%"),
+            ("TO Rate", team.stats.turnover_rate_off, "%"),
+            ("Off Reb %", team.stats.off_rebound_rate, "%"),
+            ("Def Reb %", team.stats.def_rebound_rate, "%"),
+            ("vs Top 25", team.stats.record_vs_top25, ""),
+            ("Last 10", team.stats.last10_wins|string + "-" + team.stats.last10_losses|string, ""),
+        ] %}
+        {% for label, value, suffix in metrics %}
+        <div class="bg-gray-800/50 rounded-lg p-3">
+            <div class="text-xs text-gray-400 uppercase tracking-wider">{{ label }}</div>
+            <div class="text-xl font-bold mt-1">
+                {% if value is number %}{{ "%.1f"|format(value) }}{{ suffix }}{% else %}{{ value }}{{ suffix }}{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if team.players %}
+<div class="glass rounded-xl p-5 mt-6">
+    <h3 class="text-lg font-bold mb-4">Roster — Per Game Stats</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-gray-400 text-xs uppercase border-b border-gray-700">
+                    <th class="text-left py-2 px-2">Player</th>
+                    <th class="text-center py-2 px-1">Yr</th>
+                    <th class="text-center py-2 px-1">Pos</th>
+                    <th class="text-right py-2 px-1">G</th>
+                    <th class="text-right py-2 px-1">MPG</th>
+                    <th class="text-right py-2 px-1">PPG</th>
+                    <th class="text-right py-2 px-1">RPG</th>
+                    <th class="text-right py-2 px-1">APG</th>
+                    <th class="text-right py-2 px-1">SPG</th>
+                    <th class="text-right py-2 px-1">BPG</th>
+                    <th class="text-right py-2 px-1">FG%</th>
+                    <th class="text-right py-2 px-1">3P%</th>
+                    <th class="text-right py-2 px-1">FT%</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in team.players|sort(attribute='ppg', reverse=true) %}
+                {% if p.mpg >= 5 %}
+                <tr class="border-b border-gray-800 hover:bg-white/5">
+                    <td class="py-2 px-2 font-medium">{{ p.name }}</td>
+                    <td class="text-center py-2 px-1 text-gray-400">{{ p.year }}</td>
+                    <td class="text-center py-2 px-1 text-gray-400">{{ p.position }}</td>
+                    <td class="text-right py-2 px-1">{{ p.games }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.mpg) }}</td>
+                    <td class="text-right py-2 px-1 font-bold text-ncaa-orange">{{ "%.1f"|format(p.ppg) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.rpg) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.apg) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.spg) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.bpg) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.fg_pct) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.three_pct) }}</td>
+                    <td class="text-right py-2 px-1">{{ "%.1f"|format(p.ft_pct) }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if team.schedule %}
+<div class="glass rounded-xl p-5 mt-6">
+    <h3 class="text-lg font-bold mb-4">Recent Schedule</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-gray-400 text-xs uppercase border-b border-gray-700">
+                    <th class="text-left py-2 px-2">Date</th>
+                    <th class="text-center py-2 px-1"></th>
+                    <th class="text-left py-2 px-2">Opponent</th>
+                    <th class="text-center py-2 px-1">Result</th>
+                    <th class="text-right py-2 px-2">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in team.schedule[-15:] %}
+                <tr class="border-b border-gray-800 hover:bg-white/5">
+                    <td class="py-2 px-2 text-gray-400">{{ g.date }}</td>
+                    <td class="text-center py-2 px-1 text-gray-500">{{ "@" if g.location == "@" else "vs" if g.location == "H" else "N" }}</td>
+                    <td class="py-2 px-2">{{ g.opponent }}{% if g.is_ranked_opp %} <span class="text-yellow-400 text-xs">(RK)</span>{% endif %}</td>
+                    <td class="text-center py-2 px-1 font-bold {{ 'text-green-400' if g.result == 'W' else 'text-red-400' }}">{{ g.result }}</td>
+                    <td class="text-right py-2 px-2">{{ g.team_score }}-{{ g.opp_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="glass rounded-xl p-5 mt-6">
+    <h3 class="text-lg font-bold mb-4">Radar Profile</h3>
+    <div id="radar-chart"></div>
+</div>
+
+<script>
+    const radarData = [{
+        type: 'scatterpolar',
+        r: [
+            {{ profile.offensive_score }},
+            {{ profile.defensive_score }},
+            {{ (team.stats.three_pt_pct / 45 * 100)|round(1) }},
+            {{ (team.stats.ft_pct / 85 * 100)|round(1) }},
+            {{ ((25 - team.stats.turnover_rate_off) / 15 * 100)|round(1) }},
+            {{ (team.stats.off_rebound_rate / 40 * 100)|round(1) }},
+            {{ profile.intangible_score }},
+            {{ profile.offensive_score }}
+        ],
+        theta: ['Offense', 'Defense', '3PT Shooting', 'FT Shooting', 'Ball Security', 'Rebounding', 'Intangibles', 'Offense'],
+        fill: 'toself',
+        fillcolor: 'rgba(255, 107, 0, 0.2)',
+        line: { color: '#FF6B00' },
+        name: '{{ team.name }}'
+    }];
+    const radarLayout = {
+        polar: {
+            bgcolor: 'rgba(0,0,0,0)',
+            radialaxis: { visible: true, range: [0, 100], color: '#666', gridcolor: '#333' },
+            angularaxis: { color: '#999', gridcolor: '#333' }
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#ccc' },
+        showlegend: false,
+        margin: { t: 30, b: 30, l: 60, r: 60 },
+        height: 400
+    };
+    Plotly.newPlot('radar-chart', radarData, radarLayout, { responsive: true, displayModeBar: false });
+</script>
+{% endblock %}
