@@ -336,7 +336,9 @@ def matchup(team_a_name, team_b_name, year):
 @click.option("--w-eff", default=None, type=float, help="Efficiency weight (0-100)")
 @click.option("--w-prof", default=None, type=float, help="Profile weight (0-100)")
 @click.option("--w-match", default=None, type=float, help="Matchup weight (0-100)")
-def advisor(year, iterations, seed, w_hist, w_eff, w_prof, w_match):
+@click.option("--chaos", is_flag=True, help="Bias picks toward underdogs (chaos bracket)")
+@click.option("--chaos-strength", default=50, type=int, help="Chaos strength 0-100 (default 50)")
+def advisor(year, iterations, seed, w_hist, w_eff, w_prof, w_match, chaos, chaos_strength):
     """Generate a complete bracket recommendation with confidence levels and upset picks."""
     weights = {}
     if w_hist is not None:
@@ -363,6 +365,11 @@ def advisor(year, iterations, seed, w_hist, w_eff, w_prof, w_match):
 
     engine, teams, teams_by_name, profiles = _build_engine(year, iterations, seed, weights or None)
 
+    upset_bias = 0.0
+    if chaos:
+        upset_bias = max(0, min(100, chaos_strength)) / 100.0
+        console.print(f"[yellow]Chaos mode: upset bias = {upset_bias:.0%}[/yellow]\n")
+
     with Progress(console=console) as progress:
         task = progress.add_task("Simulating tournaments...", total=iterations)
 
@@ -373,7 +380,7 @@ def advisor(year, iterations, seed, w_hist, w_eff, w_prof, w_match):
         progress.update(task, completed=iterations)
 
     sim_results = SimulationResults(raw)
-    consensus = engine.predict_consensus_bracket()
+    consensus = engine.predict_consensus_bracket(upset_bias=upset_bias)
     adv = BracketAdvisor(engine.evaluator, sim_results, teams_by_name, profiles)
     picks = adv.generate_bracket(consensus)
     result = adv.to_dict(picks)

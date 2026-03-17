@@ -146,6 +146,25 @@ def test_close_matchups_have_variance():
     assert 30 <= pct <= 70, f"Close matchup should be roughly even, got {pct}% for team A"
 
 
+def test_final_four_region_pairings_match_real_bracket():
+    teams_by_name = {}
+    bracket_sim = BracketSimulator(load_bracket(), teams_by_name)
+
+    region_winners = {
+        "West": Team(name="West Winner", seed=1, region="West"),
+        "Midwest": Team(name="Midwest Winner", seed=1, region="Midwest"),
+        "East": Team(name="East Winner", seed=1, region="East"),
+        "South": Team(name="South Winner", seed=1, region="South"),
+    }
+    matchups = bracket_sim.get_final_four_matchups(region_winners)
+    names = [(a.name, b.name) for a, b in matchups]
+
+    assert names == [
+        ("West Winner", "Midwest Winner"),
+        ("East Winner", "South Winner"),
+    ]
+
+
 def test_experienced_coach_benefits_late():
     base_stats = TeamStats(adj_offensive_efficiency=115, adj_defensive_efficiency=98, tempo=68)
     experienced_coach = CoachInfo(name="VetCoach", tourney_appearances=20, final_fours=5,
@@ -194,5 +213,6 @@ if __name__ == "__main__":
     test_scores_in_realistic_range()
     test_upsets_rare_for_mismatches()
     test_close_matchups_have_variance()
+    test_final_four_region_pairings_match_real_bracket()
     test_experienced_coach_benefits_late()
     print("All simulation tests passed!")

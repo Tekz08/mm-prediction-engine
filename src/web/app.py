@@ -16,6 +16,7 @@ from src.simulation.results import SimulationResults
 app = Flask(__name__)
 
 _cache = {}
+_active_engine = {"engine": None, "lock": threading.Lock()}
 
 
 def _get_data(year=None):
@@ -62,70 +63,6 @@ def team_detail(team_name):
         return render_template("404.html", message=f"Team '{team_name}' not found"), 404
     profile = data["profiles"].get(team_name)
     return render_template("team.html", team=team, profile=profile)
-
-
-@app.route("/results")
-def results():
-    return render_template("results.html", year=config.CURRENT_YEAR)
-
-
-@app.route("/api/simulate", methods=["POST"])
-def api_simulate():
-    body = request.get_json(silent=True) or {}
-    iterations = min(int(body.get("iterations", 5000)), 50000)
-    year = int(body.get("year", config.CURRENT_YEAR))
-    seed = body.get("seed")
-
-    data = _get_data(year)
-    engine = MonteCarloEngine(
-        data["bracket_sim"], data["evaluator"],
-        iterations=iterations, seed=seed,
-    )
-    raw = engine.run()
-    sim_results = SimulationResults(raw)
-    summary = sim_results.to_summary_dict()
-    summary["bracket"] = engine.predict_consensus_bracket()
-    return jsonify(summary)
-
-
-@app.route("/api/simulate-stream")
-def api_simulate_stream():
-    iterations = min(int(request.args.get("iterations", 5000)), 50000)
-    year = int(request.args.get("year", config.CURRENT_YEAR))
-    seed_val = request.args.get("seed")
-    seed = int(seed_val) if seed_val else None
-
-    data = _get_data(year)
-    engine = MonteCarloEngine(
-        data["bracket_sim"], data["evaluator"],
-        iterations=iterations, seed=seed,
-    )
-
-    q = queue.Queue()
-
-    def on_progress(current, total):
-        q.put({"type": "progress", "current": current, "total": total})
-
-    def run_sim():
-        raw = engine.run(progress_callback=on_progress)
-        sim_results = SimulationResults(raw)
-        summary = sim_results.to_summary_dict()
-        summary["bracket"] = engine.predict_consensus_bracket()
-        q.put({"type": "result", "data": summary})
-
-    threading.Thread(target=run_sim, daemon=True).start()
-
-    def generate():
-        while True:
-            msg = q.get()
-            if msg["type"] == "progress":
-                yield f"data: {json.dumps(msg)}\n\n"
-            elif msg["type"] == "result":
-                yield f"data: {json.dumps(msg)}\n\n"
-                break
-
-    return Response(generate(), mimetype="text/event-stream",
-                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.route("/api/matchup", methods=["POST"])
@@ -209,6 +146,12 @@ def advisor_page():
     return render_template("advisor.html", year=config.CURRENT_YEAR)
 
 
+def _upset_bias(source, key="chaos"):
+    if source.get(key) in (True, "1", 1):
+        return 0.5
+    return 0.0
+
+
 @app.route("/api/advisor", methods=["POST"])
 def api_advisor():
     body = request.get_json(silent=True) or {}
@@ -225,7 +168,7 @@ def api_advisor():
     )
     raw = engine.run()
     sim_results = SimulationResults(raw)
-    consensus = engine.predict_consensus_bracket()
+    consensus = engine.predict_consensus_bracket(upset_bias=_upset_bias(body))
 
     adv = BracketAdvisor(
         evaluator, sim_results,
@@ -249,6 +192,13 @@ def api_advisor_stream():
         data["bracket_sim"], evaluator,
         iterations=iterations, seed=seed,
     )
+    upset_bias = _upset_bias(dict(request.args), "chaos")
+
+    with _active_engine["lock"]:
+        old = _active_engine["engine"]
+        if old:
+            old.cancel()
+        _active_engine["engine"] = engine
 
     q = queue.Queue()
 
@@ -256,15 +206,25 @@ def api_advisor_stream():
         q.put({"type": "progress", "current": current, "total": total})
 
     def run_sim():
-        raw = engine.run(progress_callback=on_progress)
-        sim_results = SimulationResults(raw)
-        consensus = engine.predict_consensus_bracket()
-        adv = BracketAdvisor(
-            evaluator, sim_results,
-            data["teams_by_name"], data["profiles"],
-        )
-        picks = adv.generate_bracket(consensus)
-        q.put({"type": "result", "data": adv.to_dict(picks)})
+        try:
+            raw = engine.run(progress_callback=on_progress)
+            if engine.cancelled:
+                q.put({"type": "cancelled"})
+                return
+            sim_results = SimulationResults(raw)
+            consensus = engine.predict_consensus_bracket(upset_bias=upset_bias)
+            adv = BracketAdvisor(
+                evaluator, sim_results,
+                data["teams_by_name"], data["profiles"],
+            )
+            picks = adv.generate_bracket(consensus)
+            q.put({"type": "result", "data": adv.to_dict(picks)})
+        except Exception:
+            q.put({"type": "cancelled"})
+        finally:
+            with _active_engine["lock"]:
+                if _active_engine["engine"] is engine:
+                    _active_engine["engine"] = None
 
     threading.Thread(target=run_sim, daemon=True).start()
 
@@ -273,12 +233,26 @@ def api_advisor_stream():
             msg = q.get()
             if msg["type"] == "progress":
                 yield f"data: {json.dumps(msg)}\n\n"
+            elif msg["type"] == "cancelled":
+                yield f"data: {json.dumps({'type': 'cancelled'})}\n\n"
+                break
             elif msg["type"] == "result":
                 yield f"data: {json.dumps(msg)}\n\n"
                 break
 
     return Response(generate(), mimetype="text/event-stream",
                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.route("/api/advisor-cancel", methods=["POST"])
+def api_advisor_cancel():
+    with _active_engine["lock"]:
+        engine = _active_engine["engine"]
+        if engine:
+            engine.cancel()
+            _active_engine["engine"] = None
+            return jsonify({"status": "cancelled"})
+    return jsonify({"status": "no_active_run"})
 
 
 if __name__ == "__main__":

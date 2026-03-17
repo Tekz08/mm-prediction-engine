@@ -12,6 +12,11 @@ REGION_MATCHUP_ORDER = [
     (6, 11), (3, 14), (7, 10), (2, 15),
 ]
 
+FINAL_FOUR_REGION_PAIRS = [
+    ("West", "Midwest"),
+    ("East", "South"),
+]
+
 
 def load_bracket(year: int | None = None, path: Path | None = None) -> dict[str, list[BracketEntry]]:
     year = year or config.CURRENT_YEAR
@@ -104,12 +109,22 @@ class BracketSimulator:
         return matchups
 
     def get_final_four_matchups(self, region_winners: dict[str, Team]) -> list[tuple[Team, Team]]:
+        matchups = []
+
+        for region_a, region_b in FINAL_FOUR_REGION_PAIRS:
+            team_a = region_winners.get(region_a)
+            team_b = region_winners.get(region_b)
+            if team_a and team_b:
+                matchups.append((team_a, team_b))
+
+        if matchups:
+            return matchups
+
         regions = self.regions
         if len(regions) < 4:
             return []
         semi1 = (region_winners.get(regions[0]), region_winners.get(regions[1]))
         semi2 = (region_winners.get(regions[2]), region_winners.get(regions[3]))
-        matchups = []
         if semi1[0] and semi1[1]:
             matchups.append(semi1)
         if semi2[0] and semi2[1]:

@@ -7,6 +7,10 @@ from src.analysis.matchup import MatchupEvaluator
 from src.data.models import Team, TeamProfile
 from src.simulation.results import SimulationResults
 
+CHAMP_EXP_PREMIUM = config.ROUND_EXPERIENCE_PREMIUM.get("Championship", 0.0)
+CHAMP_DEF_PREMIUM = config.ROUND_DEFENSE_PREMIUM.get("Championship", 0.0)
+CHAMP_VARIANCE_MULT = config.ROUND_VARIANCE_MULT.get("Championship", 0.75)
+
 
 @dataclass
 class GamePick:
@@ -247,6 +251,63 @@ class BracketAdvisor:
 
         return picks
 
+    def _exp_bonus(self, team: Team) -> float:
+        if CHAMP_EXP_PREMIUM == 0:
+            return 0.0
+        coach_score = 0.0
+        c = team.coach
+        if c.name:
+            coach_score = min(c.tourney_appearances / 20.0, 1.0) * 0.5
+            coach_score += min(c.final_fours / 5.0, 1.0) * 0.3
+            coach_score += min(c.championships / 3.0, 1.0) * 0.2
+        prog = min(team.stats.tournament_experience / 5.0, 1.0) if team.stats.tournament_experience > 0 else 0.0
+        return (coach_score * 0.6 + prog * 0.4) * CHAMP_EXP_PREMIUM
+
+    def _def_prem(self, team: Team) -> float:
+        if CHAMP_DEF_PREMIUM == 0 or team.stats.adj_defensive_efficiency == 0:
+            return 0.0
+        quality = max(0, 105 - team.stats.adj_defensive_efficiency) / 20.0
+        return quality * CHAMP_DEF_PREMIUM * 2.0
+
+    def estimate_championship_score(self, picks: list[GamePick]) -> dict | None:
+        champ_pick = self.get_champion(picks)
+        if not champ_pick:
+            return None
+        ta = self.teams_by_name.get(champ_pick.team_a)
+        tb = self.teams_by_name.get(champ_pick.team_b)
+        if not ta or not tb:
+            return None
+
+        sa, sb = ta.stats, tb.stats
+        possessions = (sa.tempo + sb.tempo) / 2.0 if sa.tempo > 0 and sb.tempo > 0 else 68.0
+        league = config.LEAGUE_AVG_EFFICIENCY
+
+        off_a = sa.sos_adjusted_oe if sa.adj_offensive_efficiency > 0 else league
+        def_a = sa.sos_adjusted_de if sa.adj_defensive_efficiency > 0 else league
+        off_b = sb.sos_adjusted_oe if sb.adj_offensive_efficiency > 0 else league
+        def_b = sb.sos_adjusted_de if sb.adj_defensive_efficiency > 0 else league
+
+        exp_a = possessions * off_a * (def_b / league) / 100.0
+        exp_b = possessions * off_b * (def_a / league) / 100.0
+
+        exp_a += self._exp_bonus(ta)
+        exp_b += self._exp_bonus(tb)
+        exp_b -= self._def_prem(ta)
+        exp_a -= self._def_prem(tb)
+
+        total = exp_a + exp_b
+        total_stdev = config.GAME_STDEV * CHAMP_VARIANCE_MULT * (2 ** 0.5)
+
+        return {
+            "estimated_total": round(total),
+            "team_a": champ_pick.team_a,
+            "team_b": champ_pick.team_b,
+            "expected_score_a": round(exp_a, 1),
+            "expected_score_b": round(exp_b, 1),
+            "range_low": round(total - total_stdev),
+            "range_high": round(total + total_stdev),
+        }
+
     def get_smart_upsets(self, picks: list[GamePick], max_upsets: int = 5) -> list[GamePick]:
         upsets = [p for p in picks if p.is_upset]
         upsets.sort(key=lambda p: -p.win_rate)
@@ -270,6 +331,7 @@ class BracketAdvisor:
         champ = self.get_champion(picks)
         ff = self.get_final_four(picks)
         smart_upsets = self.get_smart_upsets(picks)
+        score_est = self.estimate_championship_score(picks)
 
         rounds: dict[str, list] = {}
         for p in picks:
@@ -298,6 +360,7 @@ class BracketAdvisor:
             },
             "iterations": self.sim_results.iterations,
             "final_four": ff,
+            "championship_score_estimate": score_est,
             "smart_upsets": [
                 {
                     "round": u.round_name,

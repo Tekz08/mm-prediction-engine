@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import os
 import random
+import threading
 from collections import defaultdict
 from multiprocessing import Pool
 
@@ -49,6 +50,20 @@ class MonteCarloEngine:
         self.rng = random.Random(seed)
         self.np_rng = np.random.RandomState(seed)
         self._roster_cache: dict[str, dict] = {}
+        self._cancel_event = threading.Event()
+        self._pool = None
+
+    def cancel(self):
+        self._cancel_event.set()
+        if self._pool:
+            try:
+                self._pool.terminate()
+            except Exception:
+                pass
+
+    @property
+    def cancelled(self):
+        return self._cancel_event.is_set()
 
     def _get_roster_metrics(self, team: Team) -> dict:
         if team.name not in self._roster_cache:
@@ -249,7 +264,22 @@ class MonteCarloEngine:
 
         return results
 
-    def predict_consensus_bracket(self) -> dict:
+    def _pick_winner(self, team_a: Team, team_b: Team, prob_a: float, round_name: str, upset_bias: float) -> tuple[str, float]:
+        if upset_bias <= 0:
+            winner = team_a if prob_a >= 0.5 else team_b
+            display_prob = max(prob_a, 1 - prob_a) * 100
+            return winner.name, round(display_prob, 1)
+
+        threshold = 0.5 + upset_bias * 0.20
+        fav_prob = max(prob_a, 1 - prob_a)
+        favorite = team_a if prob_a >= 0.5 else team_b
+        underdog = team_b if prob_a >= 0.5 else team_a
+
+        if fav_prob >= threshold:
+            return favorite.name, round(fav_prob * 100, 1)
+        return underdog.name, round((1 - fav_prob) * 100, 1)
+
+    def predict_consensus_bracket(self, upset_bias: float = 0.0) -> dict:
         bracket = copy.deepcopy(self.bracket_sim.bracket)
         teams = self.bracket_sim.teams_by_name
         round_names = config.ROUNDS
@@ -262,15 +292,16 @@ class MonteCarloEngine:
                     opp_entry = BracketEntry(seed=entry.seed, team=entry.play_in, region=region)
                     team_b = entry_to_team(opp_entry, teams)
                     prob_a = self.evaluator.win_probability(team_a, team_b, "First Four")
-                    winner = team_a if prob_a >= 0.5 else team_b
+                    winner_name, display_prob = self._pick_winner(team_a, team_b, prob_a, "First Four", upset_bias)
+                    winner = team_a if winner_name == team_a.name else team_b
                     result["first_four"].append({
                         "team_a": {"name": team_a.name, "seed": team_a.seed},
                         "team_b": {"name": team_b.name, "seed": team_b.seed},
-                        "winner": winner.name,
-                        "prob": round(max(prob_a, 1 - prob_a) * 100, 1),
+                        "winner": winner_name,
+                        "prob": display_prob,
                         "region": region,
                     })
-                    bracket[region][i] = BracketEntry(seed=entry.seed, team=winner.name, region=region)
+                    bracket[region][i] = BracketEntry(seed=entry.seed, team=winner_name, region=region)
 
         region_winners = {}
         for region, entries in bracket.items():
@@ -289,12 +320,13 @@ class MonteCarloEngine:
                 winners = []
                 for team_a, team_b in current_matchups:
                     prob_a = self.evaluator.win_probability(team_a, team_b, rname)
-                    winner = team_a if prob_a >= 0.5 else team_b
+                    winner_name, display_prob = self._pick_winner(team_a, team_b, prob_a, rname, upset_bias)
+                    winner = team_a if winner_name == team_a.name else team_b
                     round_games.append({
                         "team_a": {"name": team_a.name, "seed": team_a.seed},
                         "team_b": {"name": team_b.name, "seed": team_b.seed},
-                        "winner": winner.name,
-                        "prob": round(max(prob_a, 1 - prob_a) * 100, 1),
+                        "winner": winner_name,
+                        "prob": display_prob,
                     })
                     winners.append(winner)
 
@@ -318,24 +350,26 @@ class MonteCarloEngine:
             ff_winners = []
             for team_a, team_b in ff_matchups:
                 prob_a = self.evaluator.win_probability(team_a, team_b, "Final Four")
-                winner = team_a if prob_a >= 0.5 else team_b
+                winner_name, display_prob = self._pick_winner(team_a, team_b, prob_a, "Final Four", upset_bias)
+                winner = team_a if winner_name == team_a.name else team_b
                 ff_games.append({
                     "team_a": {"name": team_a.name, "seed": team_a.seed},
                     "team_b": {"name": team_b.name, "seed": team_b.seed},
-                    "winner": winner.name,
-                    "prob": round(max(prob_a, 1 - prob_a) * 100, 1),
+                    "winner": winner_name,
+                    "prob": display_prob,
                 })
                 ff_winners.append(winner)
             result["final_four"] = ff_games
 
             if len(ff_winners) == 2:
                 prob_a = self.evaluator.win_probability(ff_winners[0], ff_winners[1], "Championship")
-                champ = ff_winners[0] if prob_a >= 0.5 else ff_winners[1]
+                champ_name, display_prob = self._pick_winner(ff_winners[0], ff_winners[1], prob_a, "Championship", upset_bias)
+                champ = ff_winners[0] if champ_name == ff_winners[0].name else ff_winners[1]
                 result["championship"] = {
                     "team_a": {"name": ff_winners[0].name, "seed": ff_winners[0].seed},
                     "team_b": {"name": ff_winners[1].name, "seed": ff_winners[1].seed},
-                    "winner": champ.name,
-                    "prob": round(max(prob_a, 1 - prob_a) * 100, 1),
+                    "winner": champ_name,
+                    "prob": display_prob,
                 }
 
         return result
@@ -412,6 +446,8 @@ class MonteCarloEngine:
         matchup_win_counts = defaultdict(lambda: defaultdict(int))
 
         for i in range(self.iterations):
+            if self.cancelled:
+                break
             result = self.simulate_tournament()
 
             if result.get("champion"):
@@ -479,18 +515,38 @@ class MonteCarloEngine:
         partial_results = []
         completed_iters = 0
 
-        with Pool(
+        pool = Pool(
             processes=workers,
             initializer=_init_worker,
             initargs=(self.bracket_sim, self.evaluator),
-        ) as pool:
+        )
+        self._pool = pool
+        try:
             for result in pool.imap_unordered(_run_chunk, chunk_args):
+                if self.cancelled:
+                    break
                 partial_results.append(result)
                 completed_iters += result["iterations"]
                 if progress_callback:
                     progress_callback(completed_iters, self.iterations)
+        finally:
+            if self.cancelled:
+                pool.terminate()
+            else:
+                pool.close()
+            pool.join()
+            self._pool = None
 
-        return self._merge_results(partial_results)
+        return self._merge_results(partial_results) if partial_results else {
+            "iterations": 0,
+            "team_round_counts": {},
+            "championship_wins": {},
+            "final_four_appearances": {},
+            "final_four_combos": {},
+            "championship_matchups": {},
+            "matchup_meet_counts": {},
+            "matchup_win_counts": {},
+        }
 
     @staticmethod
     def _merge_results(partial_results: list[dict]) -> dict:

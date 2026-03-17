@@ -88,6 +88,8 @@ flowchart TD
     end
 ```
 
+
+
 ### 1. Historical Seed Data (15%)
 
 A lookup table of seed-vs-seed win rates built from decades of tournament results. Known rates are hardcoded for common matchups (1v16: 99.3%, 2v15: 94.3%, 5v12: 64.7%, 8v9: 51.3%, etc.). For rarer seed combinations, rates are computed from the historical CSV, falling back to a formula based on seed difference when data is sparse.
@@ -143,16 +145,18 @@ The profiler also flags **strengths** (elite offense/defense, 37%+ from 3, 77%+ 
 
 Eight style-matchup sub-factors are computed and summed, then passed through a logistic function:
 
-| Factor | What it measures |
-|--------|-----------------|
-| **Perimeter battle** | Expected 3PT% for each team (own shooting vs. opponent's 3PT defense), difference scaled ×0.3 |
-| **Turnover battle** | Each team's offensive TO rate + opponent's defensive TO rate — higher exposure = disadvantage |
-| **Rebounding battle** | Offensive rebound rate vs. opponent's defensive rebound rate differential |
-| **Pace mismatch** | When tempo differs by 3+ possessions, the team with the stronger SOS gets a small edge |
-| **Free throw edge** | FT rate × FT% — the team getting to the line more often *and* making them has an advantage |
-| **Head-to-head** | If the teams played this season, average margin of victory feeds directly into the adjustment |
-| **Common opponents** | Average margin differential against shared opponents |
-| **Momentum** | Weighted combination of last-10-game margin (40%), win rate (×5.0), and trend (second half vs. first half of the stretch) |
+
+| Factor                | What it measures                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Perimeter battle**  | Expected 3PT% for each team (own shooting vs. opponent's 3PT defense), difference scaled ×0.3                             |
+| **Turnover battle**   | Each team's offensive TO rate + opponent's defensive TO rate — higher exposure = disadvantage                             |
+| **Rebounding battle** | Offensive rebound rate vs. opponent's defensive rebound rate differential                                                 |
+| **Pace mismatch**     | When tempo differs by 3+ possessions, the team with the stronger SOS gets a small edge                                    |
+| **Free throw edge**   | FT rate × FT% — the team getting to the line more often *and* making them has an advantage                                |
+| **Head-to-head**      | If the teams played this season, average margin of victory feeds directly into the adjustment                             |
+| **Common opponents**  | Average margin differential against shared opponents                                                                      |
+| **Momentum**          | Weighted combination of last-10-game margin (40%), win rate (×5.0), and trend (second half vs. first half of the stretch) |
+
 
 A small **coach nudge** is added on top: tournament appearances × 0.002 + Final Fours × 0.005 + championships × 0.008, clamped to ±0.05.
 
@@ -169,17 +173,14 @@ Clamped to [0.02, 0.98] so no outcome is ever treated as impossible.
 Rather than just using win probabilities as coin flips, the engine **simulates actual game scores** for each matchup:
 
 1. **Expected score**: possessions (average of both teams' tempo) × SOS-adjusted offensive efficiency × (opponent's SOS-adjusted defensive efficiency / league average) / 100. The win probability edge is converted to a point spread (±3 points per 0.5 probability deviation) and applied.
-
 2. **Round-dependent bonuses** that increase in later rounds:
-   - **Experience bonus** — Coach tournament résumé (60%) + program experience (40%), multiplied by a round premium that rises from 0.0 in R64 to 1.2 in the championship
-   - **Defense premium** — Teams with elite defensive efficiency (below 105) get an increasing bonus that penalizes their opponent's expected score in later rounds
-   - **Bench depth bonus** — Teams with 8+ rotation players get reduced variance in later rounds; thin rotations (≤5) get increased variance
-
+  - **Experience bonus** — Coach tournament résumé (60%) + program experience (40%), multiplied by a round premium that rises from 0.0 in R64 to 1.2 in the championship
+  - **Defense premium** — Teams with elite defensive efficiency (below 105) get an increasing bonus that penalizes their opponent's expected score in later rounds
+  - **Bench depth bonus** — Teams with 8+ rotation players get reduced variance in later rounds; thin rotations (≤5) get increased variance
 3. **Score noise**: each team's score is drawn from a normal distribution around their expected score. Base standard deviation is 9.0 points, adjusted by:
-   - Round variance multiplier (shrinks from 1.0 in R64 to 0.75 in the championship — less chaos in later rounds)
-   - Star dependency — teams with a top scorer taking >25% of points get amplified variance (boom-or-bust)
-   - Bench depth — deep rotations compress variance, thin ones expand it
-
+  - Round variance multiplier (shrinks from 1.0 in R64 to 0.75 in the championship — less chaos in later rounds)
+  - Star dependency — teams with a top scorer taking >25% of points get amplified variance (boom-or-bust)
+  - Bench depth — deep rotations compress variance, thin ones expand it
 4. **Tie-breaking**: if the simulated scores tie, the win probability is used as a weighted coin flip.
 
 The engine runs 10,000 full tournament simulations (including First Four play-in games) and aggregates championship wins, Final Four appearances, round-by-round advancement counts, and tier classifications (locks, likely, coin-flips, upsets).
@@ -199,7 +200,14 @@ Recent advisor updates:
 
 - **Sample-aware confidence source** — Picks now label whether displayed confidence comes from conditional Monte Carlo matchup outcomes (`SIM`) or the base matchup model (`MODEL`) when sample counts are too thin.
 - **Championship score estimate** — Advisor output now includes an estimated combined total for the title game, expected team scores, and a typical range.
-- **Chaos mode** — CLI and web flows support upset bias for users who want higher-volatility brackets.
+- **Chaos mode (exact behavior)** — Chaos mode changes only the advisor's deterministic bracket picks (not the Monte Carlo simulation itself):
+  - Let `fav_prob = max(P(team_a), P(team_b))`.
+  - Let `threshold = 0.5 + upset_bias * 0.20`.
+  - If `fav_prob >= threshold`, the favorite is picked; otherwise the underdog is picked.
+  - With `upset_bias = 0.0`, behavior is the normal consensus bracket (always pick higher-probability team).
+  - CLI mapping: `--chaos-strength` maps `0..100` to `upset_bias = strength / 100` (clamped).
+  - Web mapping: `chaos=1` uses fixed `upset_bias = 0.5` (so `threshold = 0.60`).
+  - Examples: at `upset_bias=0.5`, favorites below 60% flip to underdogs; at `upset_bias=1.0`, favorites below 70% flip.
 
 ## Data Pipeline
 
@@ -210,14 +218,16 @@ Recent advisor updates:
 
 ## CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `simulate` | Run Monte Carlo simulation with configurable iterations |
-| `advisor` | Generate a complete bracket with confidence levels, reasoning, smart upset picks, and optional chaos-mode upset bias |
-| `profile <team>` | Detailed team profile — stats, scores, strengths/weaknesses, roster, recent games |
-| `matchup <team_a> <team_b>` | Head-to-head probability breakdown with per-factor analysis |
-| `history` | Historical seed performance, upset rates, and advancement rates |
-| `bracket` | Output predicted bracket with advancement probabilities per round |
+
+| Command                     | Description                                                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `simulate`                  | Run Monte Carlo simulation with configurable iterations                                                              |
+| `advisor`                   | Generate a complete bracket with confidence levels, reasoning, smart upset picks, and optional chaos-mode upset bias |
+| `profile <team>`            | Detailed team profile — stats, scores, strengths/weaknesses, roster, recent games                                    |
+| `matchup <team_a> <team_b>` | Head-to-head probability breakdown with per-factor analysis                                                          |
+| `history`                   | Historical seed performance, upset rates, and advancement rates                                                      |
+| `bracket`                   | Output predicted bracket with advancement probabilities per round                                                    |
+
 
 All commands support `--year`, `--iterations` / `-n`, and `--seed` / `-s` flags where applicable.
 
@@ -234,17 +244,19 @@ Run `python -m src.web.app` and visit `http://localhost:5000`:
 
 Edit `config.py` to tune:
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `CURRENT_YEAR` | 2026 | Target tournament year |
-| `DEFAULT_ITERATIONS` | 10,000 | Number of Monte Carlo simulations |
-| `WEIGHT_HISTORICAL` | 0.15 | Historical seed baseline weight |
-| `WEIGHT_EFFICIENCY` | 0.45 | Efficiency differential weight |
-| `WEIGHT_PROFILE` | 0.20 | Team profile composite weight |
-| `WEIGHT_MATCHUP` | 0.20 | Style matchup adjustment weight |
-| `LOGISTIC_SCALE` | 10.0 | Sensitivity of the efficiency logistic curve |
-| `GAME_STDEV` | 9.0 | Score noise standard deviation |
-| `SOS_ADJUSTMENT_FACTOR` | 0.5 | How much strength of schedule corrects raw efficiency |
+
+| Parameter               | Default | Description                                           |
+| ----------------------- | ------- | ----------------------------------------------------- |
+| `CURRENT_YEAR`          | 2026    | Target tournament year                                |
+| `DEFAULT_ITERATIONS`    | 10,000  | Number of Monte Carlo simulations                     |
+| `WEIGHT_HISTORICAL`     | 0.15    | Historical seed baseline weight                       |
+| `WEIGHT_EFFICIENCY`     | 0.45    | Efficiency differential weight                        |
+| `WEIGHT_PROFILE`        | 0.20    | Team profile composite weight                         |
+| `WEIGHT_MATCHUP`        | 0.20    | Style matchup adjustment weight                       |
+| `LOGISTIC_SCALE`        | 10.0    | Sensitivity of the efficiency logistic curve          |
+| `GAME_STDEV`            | 9.0     | Score noise standard deviation                        |
+| `SOS_ADJUSTMENT_FACTOR` | 0.5     | How much strength of schedule corrects raw efficiency |
+
 
 Round-dependent multipliers for variance, experience premium, defense premium, bench depth bonus, and star dependency are also configurable.
 
@@ -283,3 +295,4 @@ Round-dependent multipliers for variance, experience premium, defense premium, b
 │       └── templates/                # HTML templates
 └── tests/                            # Test suite
 ```
+

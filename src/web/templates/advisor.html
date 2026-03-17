@@ -11,11 +11,11 @@
     main { max-width: 100% !important; }
 
     .bracket-wrapper { padding: 10px 0; }
-    .bracket-full { display: flex; align-items: stretch; width: 100%; gap: 0; }
+    .bracket-full { display: flex; align-items: stretch; width: 100%; gap: 0; position: relative; }
     .bracket-side { display: flex; flex-direction: column; flex: 1; min-width: 0; }
     .bracket-center { display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 0 0 auto; min-width: 160px; max-width: 190px; gap: 8px; padding: 0 4px; }
 
-    .region-bracket { display: flex; flex-direction: row; flex: 1; min-width: 0; }
+    .region-bracket { display: flex; flex-direction: row; flex: 1; min-width: 0; position: relative; }
 
     .region-label {
         writing-mode: vertical-lr;
@@ -51,7 +51,7 @@
         border-radius: 4px;
         overflow: visible;
         font-size: 11px;
-        min-height: 42px;
+        min-height: 34px;
         cursor: pointer;
     }
     .game-slot:hover .game-team { border-color: #4a6a8a; }
@@ -98,7 +98,7 @@
         padding: 2px 6px;
         background: #182026;
         border: 1px solid #232c36;
-        height: 21px;
+        height: 17px;
         gap: 4px;
         transition: background 0.15s;
         position: relative;
@@ -124,26 +124,9 @@
     .game-team .src-badge.src-sim { background: rgba(34,197,94,0.18); color: #22c55e; }
     .game-team .src-badge.src-model { background: rgba(156,163,175,0.18); color: #9ca3af; }
 
-    .connector-right { position: absolute; right: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
-    .connector-vert-right {
-        position: absolute;
-        right: -12px;
-        width: 1px;
-        background: #36404e;
-        z-index: 2;
-    }
-    .connector-left { position: absolute; left: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
-    .connector-vert-left {
-        position: absolute;
-        left: -12px;
-        width: 1px;
-        background: #36404e;
-        z-index: 2;
-    }
-    .connector-in-right { position: absolute; left: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
-    .connector-in-left { position: absolute; right: -12px; top: 50%; width: 12px; height: 1px; background: #36404e; z-index: 2; }
+    .bracket-connector-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
 
-    .round-col { padding: 2px 6px; }
+    .round-col { padding: 2px 4px; }
 
     .champ-slot {
         background: linear-gradient(135deg, #003087, #1a4db5);
@@ -155,6 +138,18 @@
     .champ-slot .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; }
     .champ-slot .team { font-size: 14px; font-weight: 700; color: #fbbf24; }
     .champ-slot .detail { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+    .score-estimate-slot {
+        background: linear-gradient(135deg, #1a2744, #1e3a5f);
+        border: 1px solid #36404e;
+        border-radius: 6px;
+        padding: 6px 12px;
+        text-align: center;
+    }
+    .score-estimate-slot .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; }
+    .score-estimate-slot .total { font-size: 22px; font-weight: 700; color: #38bdf8; }
+    .score-estimate-slot .breakdown { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+    .score-estimate-slot .range { font-size: 9px; color: #6b798c; margin-top: 1px; }
 
     .ff-slot {
         background: #1a2744;
@@ -195,8 +190,7 @@
         .game-team.winner { background: #e8e8e8 !important; }
         .game-team.loser { color: #999 !important; }
         .game-team .seed { color: #666 !important; }
-        .connector-right, .connector-left, .connector-vert-right, .connector-vert-left,
-        .connector-in-right, .connector-in-left { background: #999 !important; }
+        .bracket-connector-svg line { stroke: #999 !important; }
         .champ-slot { background: white !important; border-color: #333 !important; }
         .champ-slot .team { color: #333 !important; }
         .bracket-wrapper { overflow: visible !important; }
@@ -215,9 +209,17 @@
             <input type="number" id="iterations" value="10000" min="100" max="50000" step="1000"
                    class="bg-gray-800 border border-gray-600 rounded px-3 py-2 w-36 text-white">
         </div>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chaosMode" class="rounded border-gray-600 bg-gray-800 text-ncaa-orange focus:ring-ncaa-orange">
+            <span class="text-sm text-gray-300">Chaos mode</span>
+        </label>
         <button onclick="runAdvisor()" id="runBtn"
                 class="bg-ncaa-orange hover:bg-orange-600 text-white font-bold px-6 py-2 rounded transition">
             Generate Bracket
+        </button>
+        <button onclick="cancelAdvisor()" id="cancelBtn"
+                class="hidden bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2 rounded transition">
+            Cancel
         </button>
         <button onclick="toggleWeights()" class="text-sm text-gray-400 hover:text-white transition px-3 py-2 border border-gray-700 rounded">
             Tune Weights
@@ -267,7 +269,7 @@
 </div>
 
 <div id="results" class="hidden">
-    <div id="summaryPanel" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"></div>
+    <div id="summaryPanel" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4"></div>
     <div id="upsetsPanel" class="mb-4"></div>
     <div class="flex items-center gap-3 mb-3 no-print">
         <div class="view-toggle">
@@ -281,10 +283,11 @@
 </div>
 
 <script>
-const REGION_ORDER_LEFT = ['East', 'West'];
-const REGION_ORDER_RIGHT = ['Midwest', 'South'];
+const REGION_ORDER_LEFT = ['East', 'South'];
+const REGION_ORDER_RIGHT = ['West', 'Midwest'];
 const ROUND_NAMES = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8'];
 let advisorIterations = 0;
+let activeEventSource = null;
 
 function confClass(c) { return {'Lock':'conf-lock','Strong':'conf-strong','Lean':'conf-lean','Toss-up':'conf-tossup'}[c]||''; }
 function badgeClass(c) { return {'Lock':'badge-lock','Strong':'badge-strong','Lean':'badge-lean','Toss-up':'badge-tossup'}[c]||''; }
@@ -321,6 +324,25 @@ function switchView(v) {
     document.getElementById('btnTable').classList.toggle('active', v==='table');
 }
 
+function resetAdvisorUI() {
+    const btn = document.getElementById('runBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    btn.disabled = false;
+    btn.textContent = 'Generate Bracket';
+    cancelBtn.classList.add('hidden');
+    activeEventSource = null;
+}
+
+function cancelAdvisor() {
+    if (activeEventSource) {
+        activeEventSource.close();
+        activeEventSource = null;
+    }
+    fetch('/api/advisor-cancel', { method: 'POST' });
+    document.getElementById('progressText').textContent = 'Cancelled.';
+    resetAdvisorUI();
+}
+
 function runAdvisor() {
     const iterations = document.getElementById('iterations').value;
     const wHist = document.getElementById('wHist').value;
@@ -328,27 +350,35 @@ function runAdvisor() {
     const wProf = document.getElementById('wProf').value;
     const wMatch = document.getElementById('wMatch').value;
     const btn = document.getElementById('runBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
     const prog = document.getElementById('progressContainer');
     const bar = document.getElementById('progressBar');
     const text = document.getElementById('progressText');
     btn.disabled = true; btn.textContent = 'Generating...';
+    cancelBtn.classList.remove('hidden');
     prog.classList.remove('hidden'); bar.style.width = '0%';
     document.getElementById('results').classList.add('hidden');
 
-    const es = new EventSource(`/api/advisor-stream?iterations=${iterations}&w_hist=${wHist}&w_eff=${wEff}&w_prof=${wProf}&w_match=${wMatch}`);
+    const chaos = document.getElementById('chaosMode').checked ? '1' : '0';
+    const es = new EventSource(`/api/advisor-stream?iterations=${iterations}&w_hist=${wHist}&w_eff=${wEff}&w_prof=${wProf}&w_match=${wMatch}&chaos=${chaos}`);
+    activeEventSource = es;
     es.onmessage = function(e) {
         const msg = JSON.parse(e.data);
         if (msg.type === 'progress') {
             const pct = (msg.current / msg.total * 100).toFixed(1);
             bar.style.width = pct + '%';
             text.textContent = `Simulating... ${msg.current.toLocaleString()} / ${msg.total.toLocaleString()}`;
+        } else if (msg.type === 'cancelled') {
+            es.close();
+            text.textContent = 'Cancelled.';
+            resetAdvisorUI();
         } else if (msg.type === 'result') {
             es.close(); bar.style.width = '100%'; text.textContent = 'Complete!';
-            btn.disabled = false; btn.textContent = 'Generate Bracket';
+            resetAdvisorUI();
             renderAll(msg.data);
         }
     };
-    es.onerror = function() { es.close(); btn.disabled = false; btn.textContent = 'Generate Bracket'; text.textContent = 'Error.'; };
+    es.onerror = function() { es.close(); text.textContent = 'Error.'; resetAdvisorUI(); };
 }
 
 function renderAll(data, save=true) {
@@ -364,6 +394,17 @@ function renderAll(data, save=true) {
 function renderSummary(data) {
     const sp = document.getElementById('summaryPanel');
     const c = data.champion, ff = data.final_four;
+    const se = data.championship_score_estimate;
+    let scorePanel = '';
+    if (se) {
+        scorePanel = `
+        <div class="glass rounded-xl p-5">
+            <h3 class="text-sm text-gray-400 uppercase tracking-wide mb-2">Championship Total Score</h3>
+            <p class="text-3xl font-bold text-sky-400">${se.estimated_total}</p>
+            <p class="text-sm text-gray-400 mt-1">${se.team_a} ${se.expected_score_a} – ${se.team_b} ${se.expected_score_b}</p>
+            <p class="text-xs text-gray-500 mt-1">Typical range: ${se.range_low}–${se.range_high}</p>
+        </div>`;
+    }
     sp.innerHTML = `
         <div class="glass rounded-xl p-5">
             <h3 class="text-sm text-gray-400 uppercase tracking-wide mb-2">Predicted Champion</h3>
@@ -380,7 +421,8 @@ function renderSummary(data) {
             <p class="text-lg">${data.total_picks} picks</p>
             <p class="text-lg text-red-400">${data.total_upsets} upsets</p>
             <p class="text-lg text-cyan-400">${data.smart_upsets.length} smart upset picks</p>
-        </div>`;
+        </div>
+        ${scorePanel}`;
 }
 
 function renderUpsets(data) {
@@ -529,6 +571,16 @@ function renderBracketViz(data) {
         </div></a>`;
     }
 
+    const se = data.championship_score_estimate;
+    if (se) {
+        html += `<div class="score-estimate-slot">
+            <div class="label">Est. Combined Score</div>
+            <div class="total">${se.estimated_total}</div>
+            <div class="breakdown">${se.team_a} ${se.expected_score_a} – ${se.team_b} ${se.expected_score_b}</div>
+            <div class="range">Range: ${se.range_low}–${se.range_high}</div>
+        </div>`;
+    }
+
     if (ffRound.length >= 2) {
         const g = ffRound[1];
         const aW = g.pick === g.team_a;
@@ -552,6 +604,7 @@ function renderBracketViz(data) {
 
     html += `</div></div>`;
     bv.innerHTML = html;
+    requestAnimationFrame(drawBracketLines);
 }
 
 function renderTableView(data) {
@@ -580,6 +633,117 @@ function renderTableView(data) {
     });
     rp.innerHTML = h;
 }
+
+function drawBracketLines() {
+    document.querySelectorAll('.bracket-connector-svg').forEach(el => el.remove());
+
+    function addLine(svg, x1, y1, x2, y2) {
+        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+        l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+        l.setAttribute('stroke', '#ffffff'); l.setAttribute('stroke-width', '1');
+        svg.appendChild(l);
+    }
+
+    function makeSvg(parent) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.classList.add('bracket-connector-svg');
+        svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+        parent.appendChild(svg);
+        return svg;
+    }
+
+    document.querySelectorAll('.region-bracket').forEach(region => {
+        const mirrored = region.classList.contains('mirrored');
+        const cols = Array.from(region.querySelectorAll('.round-col'));
+        if (cols.length < 2) return;
+        const svg = makeSvg(region);
+        const rr = region.getBoundingClientRect();
+
+        const pairs = [];
+        if (!mirrored) {
+            for (let i = 0; i < cols.length - 1; i++) pairs.push([i, i + 1]);
+        } else {
+            for (let i = cols.length - 1; i > 0; i--) pairs.push([i, i - 1]);
+        }
+
+        pairs.forEach(([src, dst]) => {
+            const srcSlots = cols[src].querySelectorAll('.game-slot');
+            const dstSlots = cols[dst].querySelectorAll('.game-slot');
+            for (let j = 0; j < srcSlots.length; j += 2) {
+                const g1 = srcSlots[j], g2 = srcSlots[j + 1], gn = dstSlots[j / 2];
+                if (!g1 || !g2 || !gn) continue;
+                const r1 = g1.getBoundingClientRect(), r2 = g2.getBoundingClientRect(), rn = gn.getBoundingClientRect();
+                const y1 = r1.top + r1.height / 2 - rr.top;
+                const y2 = r2.top + r2.height / 2 - rr.top;
+                const yn = rn.top + rn.height / 2 - rr.top;
+                let xF1, xF2, xT;
+                if (!mirrored) {
+                    xF1 = r1.right - rr.left; xF2 = r2.right - rr.left; xT = rn.left - rr.left;
+                } else {
+                    xF1 = r1.left - rr.left; xF2 = r2.left - rr.left; xT = rn.right - rr.left;
+                }
+                const xM = (xF1 + xT) / 2;
+                addLine(svg, xF1, y1, xM, y1);
+                addLine(svg, xF2, y2, xM, y2);
+                addLine(svg, xM, y1, xM, y2);
+                addLine(svg, xM, yn, xT, yn);
+            }
+        });
+    });
+
+    const bf = document.querySelector('.bracket-full');
+    if (!bf) return;
+    const bfR = bf.getBoundingClientRect();
+    const bfSvg = makeSvg(bf);
+    const ffSlots = Array.from(bf.querySelectorAll('.ff-slot'));
+    const sides = Array.from(bf.querySelectorAll('.bracket-side'));
+
+    if (sides[0] && ffSlots[0]) {
+        const leftRegions = sides[0].querySelectorAll('.region-bracket');
+        const e8s = [];
+        leftRegions.forEach(reg => {
+            const cs = reg.querySelectorAll('.round-col');
+            const e8 = cs[cs.length - 1]?.querySelector('.game-slot');
+            if (e8) e8s.push(e8);
+        });
+        if (e8s.length === 2) {
+            const a = e8s[0].getBoundingClientRect(), b = e8s[1].getBoundingClientRect(), ff = ffSlots[0].getBoundingClientRect();
+            const ya = a.top + a.height / 2 - bfR.top, yb = b.top + b.height / 2 - bfR.top;
+            const yf = ff.top + ff.height / 2 - bfR.top;
+            const xFrom = Math.max(a.right, b.right) - bfR.left, xTo = ff.left - bfR.left;
+            const xM = (xFrom + xTo) / 2;
+            addLine(bfSvg, a.right - bfR.left, ya, xM, ya);
+            addLine(bfSvg, b.right - bfR.left, yb, xM, yb);
+            addLine(bfSvg, xM, ya, xM, yb);
+            addLine(bfSvg, xM, yf, xTo, yf);
+        }
+    }
+
+    if (sides[1] && ffSlots[1]) {
+        const rightRegions = sides[1].querySelectorAll('.region-bracket');
+        const e8s = [];
+        rightRegions.forEach(reg => {
+            const cs = reg.querySelectorAll('.round-col');
+            const e8 = cs[0]?.querySelector('.game-slot');
+            if (e8) e8s.push(e8);
+        });
+        if (e8s.length === 2) {
+            const a = e8s[0].getBoundingClientRect(), b = e8s[1].getBoundingClientRect(), ff = ffSlots[1].getBoundingClientRect();
+            const ya = a.top + a.height / 2 - bfR.top, yb = b.top + b.height / 2 - bfR.top;
+            const yf = ff.top + ff.height / 2 - bfR.top;
+            const xFrom = Math.min(a.left, b.left) - bfR.left, xTo = ff.right - bfR.left;
+            const xM = (xFrom + xTo) / 2;
+            addLine(bfSvg, a.left - bfR.left, ya, xM, ya);
+            addLine(bfSvg, b.left - bfR.left, yb, xM, yb);
+            addLine(bfSvg, xM, ya, xM, yb);
+            addLine(bfSvg, xM, yf, xTo, yf);
+        }
+    }
+}
+
+let resizeTimer;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawBracketLines, 150); });
 
 (function() {
     const cached = localStorage.getItem('lastAdvisor');
