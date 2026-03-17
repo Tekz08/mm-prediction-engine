@@ -18,6 +18,9 @@ python cli.py simulate
 # Get a complete bracket recommendation with upset picks
 python cli.py advisor -n 10000
 
+# Chaos-style bracket (bias toward underdogs)
+python cli.py advisor -n 10000 --chaos --chaos-strength 50
+
 # View a team profile
 python cli.py profile "Duke"
 
@@ -192,6 +195,12 @@ After simulation, the advisor builds a deterministic consensus bracket (always p
 
 It also identifies **smart upsets**: lower-seeded teams with meaningfully better efficiency, profile, or matchup numbers than their seed suggests.
 
+Recent advisor updates:
+
+- **Sample-aware confidence source** — Picks now label whether displayed confidence comes from conditional Monte Carlo matchup outcomes (`SIM`) or the base matchup model (`MODEL`) when sample counts are too thin.
+- **Championship score estimate** — Advisor output now includes an estimated combined total for the title game, expected team scores, and a typical range.
+- **Chaos mode** — CLI and web flows support upset bias for users who want higher-volatility brackets.
+
 ## Data Pipeline
 
 1. `scrape_real_data.py` — Pulls basic, opponent, and advanced stats from Sports Reference for all tournament teams.
@@ -204,7 +213,7 @@ It also identifies **smart upsets**: lower-seeded teams with meaningfully better
 | Command | Description |
 |---------|-------------|
 | `simulate` | Run Monte Carlo simulation with configurable iterations |
-| `advisor` | Generate a complete bracket with confidence levels, reasoning, and smart upset picks |
+| `advisor` | Generate a complete bracket with confidence levels, reasoning, smart upset picks, and optional chaos-mode upset bias |
 | `profile <team>` | Detailed team profile — stats, scores, strengths/weaknesses, roster, recent games |
 | `matchup <team_a> <team_b>` | Head-to-head probability breakdown with per-factor analysis |
 | `history` | Historical seed performance, upset rates, and advancement rates |
@@ -219,8 +228,7 @@ Run `python -m src.web.app` and visit `http://localhost:5000`:
 - **Bracket view** — Full tournament bracket with clickable teams
 - **Team profiles** — Key metrics, composite scores, strengths/weaknesses, roster, schedule
 - **Matchup analysis** — Pick any two teams for a head-to-head breakdown
-- **Simulation dashboard** — Run simulations from the browser with streaming results
-- **Bracket advisor** — Full bracket recommendation with confidence labels and upset picks
+- **Bracket advisor** — Streaming simulations plus full bracket recommendation with confidence labels, upset picks, chaos mode, cancellation, and cached last results in local storage
 
 ## Configuration
 
